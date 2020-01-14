@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AzureFunctionsVersion>v2</AzureFunctionsVersion>
+    <PackageId>live-streaming-api</PackageId>
+    <Authors>Oliver Spryn</Authors>
+    <Product>Live Streaming API</Product>
+    <Company>Literal Life Church</Company>
+    <Description>A minimal API wrapper running on Azure Functions to enable, disable, and read the status of one or more live streaming sessions with Azure Media Services</Description>
+    <Copyright>Copyright © 2020</Copyright>
+    <PackageProjectUrl>https://github.com/literal-life-church/live-streaming-api</PackageProjectUrl>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/literal-life-church/live-streaming-api</RepositoryUrl>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>API, API Wrapper, Audio, Azure, Azure Functions, Azure Media Services, Live Streaming, Streaming, Video</PackageTags>
+    <RootNamespace>LiteralLifeChurch.LiveStreamingApi</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+</Project>

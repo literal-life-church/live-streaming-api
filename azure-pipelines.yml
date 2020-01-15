@@ -1,0 +1,13 @@
+name: $(SourceBranchName) $(Rev:r)
+pr: none
+
+jobs:
+  - job: Build
+    pool:
+      vmImage: 'windows-2019'
+
+    steps:
+      - task: DotNetCoreCLI@2
+        displayName: Build Application
+        inputs:
+          command: 'build'

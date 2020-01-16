@@ -17,7 +17,13 @@
     <RootNamespace>LiteralLifeChurch.LiveStreamingApi</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="3.0.14" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.5" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Host.Storage" Version="3.0.14" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.2" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

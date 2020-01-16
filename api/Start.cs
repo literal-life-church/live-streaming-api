@@ -10,11 +10,11 @@ using Newtonsoft.Json;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
-    public static class Function1
+    public static class Start
     {
-        [FunctionName("Function1")]
+        [FunctionName("start")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");

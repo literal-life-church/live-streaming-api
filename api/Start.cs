@@ -12,7 +12,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
 {
     public static class Start
     {
-        [FunctionName("start")]
+        [FunctionName("Start")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)

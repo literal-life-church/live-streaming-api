@@ -7,6 +7,12 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Rest.Azure.Authentication;
+using LiteralLifeChurch.LiveStreamingApi.models;
+using LiteralLifeChurch.LiveStreamingApi.services;
+using Microsoft.Azure.Management.Media;
+using Microsoft.Rest;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
@@ -18,6 +24,17 @@ namespace LiteralLifeChurch.LiveStreamingApi
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
+
+            ConfigurationService configService = new ConfigurationService();
+            ConfigurationModel config = configService.GetConfiguration();
+
+            ClientCredential clientCredentials = new ClientCredential(config.ClientId, config.ClientSecret);
+            ServiceClientCredentials appCredentials = await ApplicationTokenProvider.LoginSilentAsync(config.TenantId, clientCredentials, ActiveDirectoryServiceSettings.Azure);
+
+            var client =  new AzureMediaServicesClient(config.ManagementEndpoint, appCredentials)
+            {
+                SubscriptionId = config.SubscriptionId,
+            };
 
             string name = req.Query["name"];
 

@@ -1,23 +1,26 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using LiteralLifeChurch.LiveStreamingApi.services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
-    public static class Function1
+    public static class Start
     {
-        [FunctionName("Function1")]
+        private static readonly AuthenticationService auth = new AuthenticationService();
+
+        [FunctionName("Start")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            AzureMediaServicesClient client = await auth.GetClientAsync();
 
             string name = req.Query["name"];
 

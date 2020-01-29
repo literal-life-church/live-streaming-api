@@ -5,8 +5,8 @@ using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
@@ -22,15 +22,25 @@ namespace LiteralLifeChurch.LiveStreamingApi
         {
             AzureMediaServicesClient client = await auth.GetClientAsync();
 
-            string name = req.Query["name"];
+            List<string> liveEvents = req.Query["events"]
+                .ToString()
+                .Split(',')
+                .Where(x => !string.IsNullOrEmpty(x))
+                .ToList();
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            string streamingEndpoint = req.Query["endpoint"].ToString().Trim();
 
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            if (!liveEvents.Any())
+            {
+                return new BadRequestObjectResult("No Live events");
+            }
+
+            if (!string.IsNullOrEmpty(streamingEndpoint))
+            {
+                return new BadRequestObjectResult("Missing a streaming endpoint");
+            }
+
+            return new OkObjectResult($"Hello");
         }
     }
 }

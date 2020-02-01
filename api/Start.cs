@@ -20,13 +20,14 @@ namespace LiteralLifeChurch.LiveStreamingApi
 {
     public static class Start
     {
-        private static readonly AuthenticationService auth = new AuthenticationService();
+        private static readonly AuthenticationService authService = new AuthenticationService();
+        private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly string EndpointQuery = "endpoint";
         private static readonly string EventsQuery = "events";
 
         [FunctionName("Start")]
         public static async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "start")] HttpRequest req,
             ILogger log)
         {
             StartInputModel input = GetInputModel(req);
@@ -42,10 +43,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
             await StartServicesAsync(input);
 
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("yay", Encoding.UTF8, "application/json")
-            };
+            return CreateSuccess("Created");
         }
 
         private static HttpResponseMessage CreateError(string message)
@@ -60,6 +58,21 @@ namespace LiteralLifeChurch.LiveStreamingApi
             return new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
                 Content = new StringContent(errorJson, Encoding.UTF8, "application/json")
+            };
+        }
+
+        private static HttpResponseMessage CreateSuccess(string message)
+        {
+            SuccessModel error = new SuccessModel()
+            {
+                Message = message
+            };
+
+            string successJson = JsonConvert.SerializeObject(error);
+
+            return new HttpResponseMessage(HttpStatusCode.Created)
+            {
+                Content = new StringContent(successJson, Encoding.UTF8, "application/json")
             };
         }
 
@@ -84,11 +97,10 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
         private static async Task StartServicesAsync(StartInputModel serviceList)
         {
-            ConfigurationService configService = new ConfigurationService();
             ConfigurationModel config = configService.GetConfiguration();
 
             // 1. Authenticate with Azure
-            AzureMediaServicesClient client = await auth.GetClientAsync();
+            AzureMediaServicesClient client = await authService.GetClientAsync();
 
             // 2. Start the Streaming Endpoint
             await client.StreamingEndpoints.StartAsync(
@@ -102,10 +114,19 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 string assetName = $"LiveStreamingApi-Asset-{liveEvent}-{Guid.NewGuid().ToString()}";
                 string manifestName = "output";
                 string liveOutputName = $"LiveStreamingApi-LiveOutput-{liveEvent}-{Guid.NewGuid().ToString()}";
+                string streamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEvent}-{Guid.NewGuid().ToString()}";
 
-                // 3. Create the Live Output
-                LiveOutput liveOutput = new LiveOutput(
+                // 3. Create the asset
+                Asset asset = await client.Assets.CreateOrUpdateAsync(
+                    resourceGroupName: config.ResourceGroup,
+                    accountName: config.AccountName,
                     assetName: assetName,
+                    parameters: new Asset()
+                );
+
+                // 4. Create the Live Output
+                LiveOutput liveOutput = new LiveOutput(
+                    assetName: asset.Name,
                     manifestName: manifestName,
                     archiveWindowLength: TimeSpan.FromMinutes(10)
                 );
@@ -117,9 +138,27 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     liveOutputName: liveOutputName,
                     parameters: liveOutput
                 );
-            }
 
-            var x = 42;
+                // 5. Create a Streaming Locator
+                StreamingLocator locator = new StreamingLocator(
+                    assetName: asset.Name,
+                    streamingPolicyName: PredefinedStreamingPolicy.ClearStreamingOnly
+                );
+
+                await client.StreamingLocators.CreateAsync(
+                    resourceGroupName: config.ResourceGroup,
+                    accountName: config.AccountName,
+                    streamingLocatorName: streamingLocatorName,
+                    parameters: locator
+                );
+
+                // 6. Start the Live Event
+                await client.LiveEvents.StartAsync(
+                    resourceGroupName: config.ResourceGroup,
+                    accountName: config.AccountName,
+                    liveEventName: liveEvent
+                );
+            }
         }
     }
 }

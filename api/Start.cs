@@ -7,6 +7,7 @@ using Microsoft.Azure.Management.Media.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Rest.Azure;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,13 @@ namespace LiteralLifeChurch.LiveStreamingApi
             if (string.IsNullOrEmpty(input.StreamingEndpoint))
                 return CreateError("Input requires the name of a streaming endpoint");
 
-            await StartServicesAsync(input);
+            try
+            {
+                await StartServicesAsync(input);
+            } catch (Exception)
+            {
+                return CreateError("An internal error occured during. Check the logs.");
+            }
 
             return CreateSuccess("Created");
         }
@@ -103,20 +110,37 @@ namespace LiteralLifeChurch.LiveStreamingApi
             AzureMediaServicesClient client = await authService.GetClientAsync();
 
             // 2. Start the Streaming Endpoint
-            await client.StreamingEndpoints.StartAsync(
+            StreamingEndpoint streamingEndpoint = await client.StreamingEndpoints.GetAsync(
                 resourceGroupName: config.ResourceGroup,
                 accountName: config.AccountName,
                 streamingEndpointName: serviceList.StreamingEndpoint
             );
 
-            foreach (string liveEvent in serviceList.LiveEvents)
+            if (streamingEndpoint.ResourceState == StreamingEndpointResourceState.Stopped)
             {
-                string assetName = $"LiveStreamingApi-Asset-{liveEvent}-{Guid.NewGuid().ToString()}";
-                string manifestName = "output";
-                string liveOutputName = $"LiveStreamingApi-LiveOutput-{liveEvent}-{Guid.NewGuid().ToString()}";
-                string streamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEvent}-{Guid.NewGuid().ToString()}";
+                await client.StreamingEndpoints.StartAsync(
+                    resourceGroupName: config.ResourceGroup,
+                    accountName: config.AccountName,
+                    streamingEndpointName: serviceList.StreamingEndpoint
+                );
+            }
 
-                // 3. Create the asset
+            foreach (string liveEventName in serviceList.LiveEvents)
+            {
+                string assetName = $"LiveStreamingApi-Asset-{liveEventName}-{Guid.NewGuid().ToString()}";
+                string manifestName = "output";
+                string liveOutputName = $"LiveStreamingApi-LiveOutput-{liveEventName}-{Guid.NewGuid().ToString()}";
+                string streamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEventName}-{Guid.NewGuid().ToString()}";
+
+                // 3. Do not do anything if a Live Event already exists, regardless of its status
+                IPage<LiveEvent> liveEvents = await client.LiveEvents.ListAsync(
+                    resourceGroupName: config.ResourceGroup,
+                    accountName: config.AccountName
+                );
+
+                bool outputHasAnyEvents = liveEvents.ToList().Any();
+
+                // 4. Create the asset
                 Asset asset = await client.Assets.CreateOrUpdateAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
@@ -124,7 +148,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     parameters: new Asset()
                 );
 
-                // 4. Create the Live Output
+                // 5. Create the Live Output
                 LiveOutput liveOutput = new LiveOutput(
                     assetName: asset.Name,
                     manifestName: manifestName,
@@ -134,14 +158,14 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 await client.LiveOutputs.CreateAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
-                    liveEventName: liveEvent,
+                    liveEventName: liveEventName,
                     liveOutputName: liveOutputName,
                     parameters: liveOutput
                 );
 
-                // 5. Create a Streaming Locator
+                // 6. Create a Streaming Locator
                 StreamingLocator locator = new StreamingLocator(
-                    assetName: asset.Name,
+                    assetName: assetName,
                     streamingPolicyName: PredefinedStreamingPolicy.ClearStreamingOnly
                 );
 
@@ -152,12 +176,21 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     parameters: locator
                 );
 
-                // 6. Start the Live Event
-                await client.LiveEvents.StartAsync(
+                // 7. Start the Live Event
+                LiveEvent liveEvent = await client.LiveEvents.GetAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
-                    liveEventName: liveEvent
+                    liveEventName: liveEventName
                 );
+
+                if (liveEvent.ResourceState == LiveEventResourceState.Stopped)
+                {
+                    await client.LiveEvents.StartAsync(
+                        resourceGroupName: config.ResourceGroup,
+                        accountName: config.AccountName,
+                        liveEventName: liveEventName
+                    );
+                }
             }
         }
     }

@@ -132,15 +132,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 string liveOutputName = $"LiveStreamingApi-LiveOutput-{liveEventName}-{Guid.NewGuid().ToString()}";
                 string streamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEventName}-{Guid.NewGuid().ToString()}";
 
-                // 3. Do not do anything if a Live Event already exists, regardless of its status
-                IPage<LiveEvent> liveEvents = await client.LiveEvents.ListAsync(
-                    resourceGroupName: config.ResourceGroup,
-                    accountName: config.AccountName
-                );
-
-                bool outputHasAnyEvents = liveEvents.ToList().Any();
-
-                // 4. Create the asset
+                // 3. Create the asset
                 Asset asset = await client.Assets.CreateOrUpdateAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
@@ -148,7 +140,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     parameters: new Asset()
                 );
 
-                // 5. Create the Live Output
+                // 4. Create the Live Output
                 LiveOutput liveOutput = new LiveOutput(
                     assetName: asset.Name,
                     manifestName: manifestName,
@@ -163,7 +155,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     parameters: liveOutput
                 );
 
-                // 6. Create a Streaming Locator
+                // 5. Create a Streaming Locator
                 StreamingLocator locator = new StreamingLocator(
                     assetName: assetName,
                     streamingPolicyName: PredefinedStreamingPolicy.ClearStreamingOnly
@@ -176,21 +168,12 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     parameters: locator
                 );
 
-                // 7. Start the Live Event
-                LiveEvent liveEvent = await client.LiveEvents.GetAsync(
+                // 6. Start the Live Event
+                await client.LiveEvents.StartAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
                     liveEventName: liveEventName
                 );
-
-                if (liveEvent.ResourceState == LiveEventResourceState.Stopped)
-                {
-                    await client.LiveEvents.StartAsync(
-                        resourceGroupName: config.ResourceGroup,
-                        accountName: config.AccountName,
-                        liveEventName: liveEventName
-                    );
-                }
             }
         }
     }

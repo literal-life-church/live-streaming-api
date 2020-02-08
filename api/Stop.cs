@@ -7,6 +7,7 @@ using Microsoft.Azure.Management.Media.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Rest.Azure;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,16 +19,16 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
-    public static class Start
+    public static class Stop
     {
         private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly string EndpointQuery = "endpoint";
         private static readonly string EventsQuery = "events";
 
-        [FunctionName("Start")]
+        [FunctionName("Stop")]
         public static async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "start")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "stop")] HttpRequest req,
             ILogger log)
         {
             StartInputModel input = GetInputModel(req);
@@ -109,16 +110,16 @@ namespace LiteralLifeChurch.LiveStreamingApi
             // 1. Authenticate with Azure
             AzureMediaServicesClient client = await authService.GetClientAsync();
 
-            // 2. Start the Streaming Endpoint
+            // 2. Stop the Streaming Endpoint
             StreamingEndpoint streamingEndpoint = await client.StreamingEndpoints.GetAsync(
                 resourceGroupName: config.ResourceGroup,
                 accountName: config.AccountName,
                 streamingEndpointName: serviceList.StreamingEndpoint
             );
 
-            if (streamingEndpoint.ResourceState == StreamingEndpointResourceState.Stopped)
+            if (streamingEndpoint.ResourceState == StreamingEndpointResourceState.Running)
             {
-                await client.StreamingEndpoints.StartAsync(
+                await client.StreamingEndpoints.StopAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
                     streamingEndpointName: serviceList.StreamingEndpoint
@@ -127,49 +128,52 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
             foreach (string liveEventName in serviceList.LiveEvents)
             {
-                string assetName = $"LiveStreamingApi-Asset-{liveEventName}-{Guid.NewGuid().ToString()}";
-                string manifestName = "output";
-                string liveOutputName = $"LiveStreamingApi-LiveOutput-{liveEventName}-{Guid.NewGuid().ToString()}";
-                string streamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEventName}-{Guid.NewGuid().ToString()}";
-
-                // 3. Create the asset
-                Asset asset = await client.Assets.CreateOrUpdateAsync(
+                IPage<LiveOutput> liveOutputsPage = await client.LiveOutputs.ListAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
-                    assetName: assetName,
-                    parameters: new Asset()
+                    liveEventName: liveEventName
                 );
 
-                // 4. Create the Live Output
-                LiveOutput liveOutput = new LiveOutput(
-                    assetName: asset.Name,
-                    manifestName: manifestName,
-                    archiveWindowLength: TimeSpan.FromMinutes(10)
-                );
+                List<LiveOutput> liveOutputs = liveOutputsPage.ToList();
 
-                await client.LiveOutputs.CreateAsync(
-                    resourceGroupName: config.ResourceGroup,
-                    accountName: config.AccountName,
-                    liveEventName: liveEventName,
-                    liveOutputName: liveOutputName,
-                    parameters: liveOutput
-                );
+                foreach (LiveOutput liveOutput in liveOutputs)
+                {
+                    /*// 3. Delete the Streaming Locator
 
-                // 5. Create a Streaming Locator
-                StreamingLocator locator = new StreamingLocator(
-                    assetName: assetName,
-                    streamingPolicyName: PredefinedStreamingPolicy.ClearStreamingOnly
-                );
+                    Asset asset = await client.Assets.GetAsync(
+                        resourceGroupName: config.ResourceGroup,
+                        accountName: config.AccountName,
+                        assetName: liveOutput.AssetName
+                    );
 
-                await client.StreamingLocators.CreateAsync(
-                    resourceGroupName: config.ResourceGroup,
-                    accountName: config.AccountName,
-                    streamingLocatorName: streamingLocatorName,
-                    parameters: locator
-                );
+                    StreamingLocator locator = await client.StreamingLocators.GetAsync();
 
-                // 6. Start the Live Event
-                await client.LiveEvents.StartAsync(
+                    // 3. Delete the Live Output
+                    await client.LiveOutputs.DeleteAsync(
+                        resourceGroupName: config.ResourceGroup,
+                        accountName: config.AccountName,
+                        liveEventName: liveEventName,
+                        liveOutputName: liveOutput.Name
+                    );
+
+
+
+                    // 4. Delete the asset
+                    await client.Assets.DeleteAsync(
+
+                    )*/
+                }
+
+
+
+
+
+
+
+
+
+                // 4. Stop the Live Event
+                await client.LiveEvents.StopAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
                     liveEventName: liveEventName

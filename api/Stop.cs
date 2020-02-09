@@ -31,7 +31,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "stop")] HttpRequest req,
             ILogger log)
         {
-            StartInputModel input = GetInputModel(req);
+            StopInputModel input = GetInputModel(req);
 
             if (!input.LiveEvents.Any() && string.IsNullOrEmpty(input.StreamingEndpoint))
                 return CreateError("Input requires the name of a streaming endpoint and the name of one or more live events");
@@ -44,9 +44,9 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
             try
             {
-                await StartServicesAsync(input);
+                await StopServicesAsync(input);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return CreateError("An internal error occured during. Check the logs.");
             }
@@ -84,7 +84,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             };
         }
 
-        private static StartInputModel GetInputModel(HttpRequest req)
+        private static StopInputModel GetInputModel(HttpRequest req)
         {
             List<string> liveEvents = req.Query[EventsQuery]
                 .ToString()
@@ -96,14 +96,14 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 .ToString()
                 .Trim();
 
-            return new StartInputModel()
+            return new StopInputModel()
             {
                 LiveEvents = liveEvents,
                 StreamingEndpoint = streamingEndpoint
             };
         }
 
-        private static async Task StartServicesAsync(StartInputModel serviceList)
+        private static async Task StopServicesAsync(StopInputModel serviceList)
         {
             ConfigurationModel config = configService.GetConfiguration();
 
@@ -138,16 +138,6 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
                 foreach (LiveOutput liveOutput in liveOutputs)
                 {
-                    /*// 3. Delete the Streaming Locator
-
-                    Asset asset = await client.Assets.GetAsync(
-                        resourceGroupName: config.ResourceGroup,
-                        accountName: config.AccountName,
-                        assetName: liveOutput.AssetName
-                    );
-
-                    StreamingLocator locator = await client.StreamingLocators.GetAsync();
-
                     // 3. Delete the Live Output
                     await client.LiveOutputs.DeleteAsync(
                         resourceGroupName: config.ResourceGroup,
@@ -156,23 +146,34 @@ namespace LiteralLifeChurch.LiveStreamingApi
                         liveOutputName: liveOutput.Name
                     );
 
+                    // 4. Delete the Streaming Locator
+                    IPage<StreamingLocator> locatorsPage = await client.StreamingLocators.ListAsync(
+                        resourceGroupName: config.ResourceGroup,
+                        accountName: config.AccountName
+                    );
 
+                    StreamingLocator locator = locatorsPage
+                        .ToList()
+                        .Where(x => x.AssetName == liveOutput.AssetName)
+                        .FirstOrDefault(null);
 
-                    // 4. Delete the asset
+                    //client.Assets.ListStreamingLocators()
+
+                    await client.StreamingLocators.DeleteAsync(
+                        resourceGroupName: config.ResourceGroup,
+                        accountName: config.AccountName,
+                        streamingLocatorName: locator.Name
+                    );
+
+                    // 5. Delete the asset
                     await client.Assets.DeleteAsync(
-
-                    )*/
+                        resourceGroupName: config.ResourceGroup,
+                        accountName: config.AccountName,
+                        assetName: liveOutput.AssetName
+                    );
                 }
 
-
-
-
-
-
-
-
-
-                // 4. Stop the Live Event
+                // 6. Stop the Live Event
                 await client.LiveEvents.StopAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,

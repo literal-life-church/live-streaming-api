@@ -23,8 +23,8 @@ namespace LiteralLifeChurch.LiveStreamingApi
     {
         private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
-        private static readonly string EndpointQuery = "endpoint";
-        private static readonly string EventsQuery = "events";
+        private const string EndpointQuery = "endpoint";
+        private const string EventsQuery = "events";
 
         [FunctionName("Stop")]
         public static async Task<HttpResponseMessage> Run(
@@ -51,7 +51,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 return CreateError("An internal error occured during. Check the logs.");
             }
 
-            return CreateSuccess("Created");
+            return CreateSuccess("Shut down");
         }
 
         private static HttpResponseMessage CreateError(string message)
@@ -78,7 +78,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
             string successJson = JsonConvert.SerializeObject(error);
 
-            return new HttpResponseMessage(HttpStatusCode.Created)
+            return new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(successJson, Encoding.UTF8, "application/json")
             };

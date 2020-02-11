@@ -23,7 +23,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
         private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
         private const string EndpointQuery = "endpoint";
-        private static readonly string EventsQuery = "events";
+        private const string EventsQuery = "events";
 
         [FunctionName("Start")]
         public static async Task<HttpResponseMessage> Run(

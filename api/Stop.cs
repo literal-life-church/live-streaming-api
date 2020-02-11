@@ -46,7 +46,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             {
                 await StopServicesAsync(input);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return CreateError("An internal error occured during. Check the logs.");
             }
@@ -136,34 +136,31 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
                 List<LiveOutput> liveOutputs = liveOutputsPage.ToList();
 
+                // 3. Stop the Live Event
+                await client.LiveEvents.StopAsync(
+                    resourceGroupName: config.ResourceGroup,
+                    accountName: config.AccountName,
+                    liveEventName: liveEventName
+                );
+
                 foreach (LiveOutput liveOutput in liveOutputs)
                 {
-                    // 3. Delete the Live Output
-                    await client.LiveOutputs.DeleteAsync(
+
+                    // 4. Delete the Streaming Locators
+                    ListStreamingLocatorsResponse locators = await client.Assets.ListStreamingLocatorsAsync(
                         resourceGroupName: config.ResourceGroup,
                         accountName: config.AccountName,
-                        liveEventName: liveEventName,
-                        liveOutputName: liveOutput.Name
+                        assetName: liveOutput.AssetName
                     );
 
-                    // 4. Delete the Streaming Locator
-                    IPage<StreamingLocator> locatorsPage = await client.StreamingLocators.ListAsync(
-                        resourceGroupName: config.ResourceGroup,
-                        accountName: config.AccountName
-                    );
-
-                    StreamingLocator locator = locatorsPage
-                        .ToList()
-                        .Where(x => x.AssetName == liveOutput.AssetName)
-                        .FirstOrDefault(null);
-
-                    //client.Assets.ListStreamingLocators()
-
-                    await client.StreamingLocators.DeleteAsync(
-                        resourceGroupName: config.ResourceGroup,
-                        accountName: config.AccountName,
-                        streamingLocatorName: locator.Name
-                    );
+                    foreach(AssetStreamingLocator locator in locators.StreamingLocators)
+                    {
+                        await client.StreamingLocators.DeleteAsync(
+                            resourceGroupName: config.ResourceGroup,
+                            accountName: config.AccountName,
+                            streamingLocatorName: locator.Name
+                        );
+                    }
 
                     // 5. Delete the asset
                     await client.Assets.DeleteAsync(
@@ -171,14 +168,15 @@ namespace LiteralLifeChurch.LiveStreamingApi
                         accountName: config.AccountName,
                         assetName: liveOutput.AssetName
                     );
-                }
 
-                // 6. Stop the Live Event
-                await client.LiveEvents.StopAsync(
-                    resourceGroupName: config.ResourceGroup,
-                    accountName: config.AccountName,
-                    liveEventName: liveEventName
-                );
+                    // 6. Delete the Live Output
+                    await client.LiveOutputs.DeleteAsync(
+                        resourceGroupName: config.ResourceGroup,
+                        accountName: config.AccountName,
+                        liveEventName: liveEventName,
+                        liveOutputName: liveOutput.Name
+                    );
+                }
             }
         }
     }

@@ -71,12 +71,12 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
         private static HttpResponseMessage CreateSuccess(string message)
         {
-            SuccessModel error = new SuccessModel()
+            SuccessModel success = new SuccessModel()
             {
                 Message = message
             };
 
-            string successJson = JsonConvert.SerializeObject(error);
+            string successJson = JsonConvert.SerializeObject(success);
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {

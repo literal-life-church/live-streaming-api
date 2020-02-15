@@ -25,6 +25,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
     {
         private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
+        private const string EndpointQuery = "endpoint";
         private const string EventsQuery = "events";
 
         [FunctionName("Locators")]
@@ -34,21 +35,24 @@ namespace LiteralLifeChurch.LiveStreamingApi
         {
             LocatorsInputModel input = GetInputModel(req);
 
+            if (!input.LiveEvents.Any() && string.IsNullOrEmpty(input.StreamingEndpoint))
+                return CreateError("Input requires the name of a streaming endpoint and the name of one or more live events");
+
             if (!input.LiveEvents.Any())
                 return CreateError("Input requires the name of one or more live events");
 
+            if (string.IsNullOrEmpty(input.StreamingEndpoint))
+                return CreateError("Input requires the name of a streaming endpoint");
+
             try
             {
-                await FetchLocatorsAsync(input);
+                List<LocatorsOutputModel> locators = await FetchLocatorsAsync(input);
+                return CreateSuccess(locators);
             }
             catch (Exception)
             {
                 return CreateError("An internal error occured during. Check the logs.");
             }
-
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
         }
 
         private static HttpResponseMessage CreateError(string message)
@@ -66,30 +70,53 @@ namespace LiteralLifeChurch.LiveStreamingApi
             };
         }
 
-        private static LocatorsInputModel GetInputModel(HttpRequest req)
+        private static HttpResponseMessage CreateSuccess(List<LocatorsOutputModel> locators)
         {
-            List<string> liveEvents = req.Query[EventsQuery]
-                .ToString()
-                .Split(',')
-                .Where(x => !string.IsNullOrEmpty(x.Trim()))
-                .ToList();
+            string successJson = JsonConvert.SerializeObject(locators);
 
-            return new LocatorsInputModel()
+            return new HttpResponseMessage(HttpStatusCode.Created)
             {
-                LiveEvents = liveEvents
+                Content = new StringContent(successJson, Encoding.UTF8, "application/json")
             };
         }
 
-        private static async Task FetchLocatorsAsync(LocatorsInputModel locatorsList)
+        private static LocatorsInputModel GetInputModel(HttpRequest req)
         {
+            List<string> liveEvents = req.Query[EventsQuery]
+               .ToString()
+               .Split(',')
+               .Where(x => !string.IsNullOrEmpty(x.Trim()))
+               .ToList();
+
+            string streamingEndpoint = req.Query[EndpointQuery]
+                .ToString()
+                .Trim();
+
+            return new LocatorsInputModel()
+            {
+                LiveEvents = liveEvents,
+                StreamingEndpoint = streamingEndpoint
+            };
+        }
+
+        private static async Task<List<LocatorsOutputModel>> FetchLocatorsAsync(LocatorsInputModel input)
+        {
+            List<LocatorsOutputModel> allLocators = new List<LocatorsOutputModel>();
             ConfigurationModel config = configService.GetConfiguration();
 
             // 1. Authenticate with Azure
             AzureMediaServicesClient client = await authService.GetClientAsync();
 
-            foreach (string liveEventName in locatorsList.LiveEvents)
+            // 2. Get the Streaming Endpoint
+            StreamingEndpoint streamingEndpoint = await client.StreamingEndpoints.GetAsync(
+                resourceGroupName: config.ResourceGroup,
+                accountName: config.AccountName,
+                streamingEndpointName: input.StreamingEndpoint
+            );
+
+            foreach (string liveEventName in input.LiveEvents)
             {
-                // 2. Get the Live Output
+                // 3. Get the Live Output
                 IPage<LiveOutput> liveOutputsPage = await client.LiveOutputs.ListAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
@@ -98,25 +125,52 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
                 LiveOutput firstLiveOutput = liveOutputsPage.ToList().First();
 
-                // 3. Fetch the Locators
+                // 4. Fetch the Locators for the Asset
                 ListStreamingLocatorsResponse locatorResponse = await client.Assets.ListStreamingLocatorsAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
                     assetName: firstLiveOutput.AssetName
                 );
 
-                /*Locators locators = locatorResponse
-                    .StreamingLocators
-                    .Select(locator =>
-                    {
-                        locator.
-                    });
+                AssetStreamingLocator firstStreamingLocator = locatorResponse.StreamingLocators.First();
 
-                LocatorsOutputModel output = new LocatorsOutputModel()
+                // 5. Fetch the Paths for that Locator
+                ListPathsResponse paths = await client.StreamingLocators.ListPathsAsync(
+                    resourceGroupName: config.ResourceGroup,
+                    accountName: config.AccountName,
+                    streamingLocatorName: firstStreamingLocator.Name
+                );
+
+                // 6. Build the URL
+                List<LocatorsOutputModel.Locator> locators = paths
+                    .StreamingPaths
+                    .Select(path =>
+                    {
+                        UriBuilder uriBuilder = new UriBuilder
+                        {
+                            Scheme = "https",
+                            Host = streamingEndpoint.HostName,
+                            Path = path.Paths.First()
+                        };
+
+                        return new LocatorsOutputModel.Locator
+                        {
+                            url = uriBuilder.Uri
+                        };
+                    })
+                    .ToList();
+
+                // 7. Build the return model
+                LocatorsOutputModel output = new LocatorsOutputModel
                 {
                     LiveEventName = liveEventName,
-                    Locators = 
-                };*/
+                    Locators = locators
+                };
+
+                allLocators.Add(output);
             }
+
+            return allLocators;
+        }
     }
 }

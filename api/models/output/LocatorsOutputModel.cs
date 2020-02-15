@@ -25,7 +25,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
             public LocatorType Type { get; set; }
 
             [JsonProperty("url")]
-            public Uri url;
+            public Uri url { get; set; }
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace LiteralLifeChurch.LiveStreamingApi.models.output
 {
@@ -14,18 +16,24 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
 
         public enum LocatorType
         {
+            [EnumMember(Value = "dash")]
             DASH,
+
+            [EnumMember(Value = "hls")]
             HLS,
+
+            [EnumMember(Value = "smooth")]
             Smooth
         }
 
         public class Locator
         {
+            [JsonConverter(typeof(StringEnumConverter))]
             [JsonProperty("type")]
             public LocatorType Type { get; set; }
 
             [JsonProperty("url")]
-            public Uri url { get; set; }
+            public Uri Url { get; set; }
         }
     }
 }

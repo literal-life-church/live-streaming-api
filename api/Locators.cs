@@ -3,7 +3,6 @@ using LiteralLifeChurch.LiveStreamingApi.models.input;
 using LiteralLifeChurch.LiveStreamingApi.models.output;
 using LiteralLifeChurch.LiveStreamingApi.services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
 using Microsoft.Azure.WebJobs;
@@ -49,7 +48,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 List<LocatorsOutputModel> locators = await FetchLocatorsAsync(input);
                 return CreateSuccess(locators);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return CreateError("An internal error occured during. Check the logs.");
             }
@@ -146,16 +145,44 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     .StreamingPaths
                     .Select(path =>
                     {
-                        UriBuilder uriBuilder = new UriBuilder
+                        LocatorsOutputModel.LocatorType type = LocatorsOutputModel.LocatorType.DASH;
+                        UriBuilder uriBuilder;
+
+                        if (path.StreamingProtocol == StreamingPolicyStreamingProtocol.Dash)
                         {
-                            Scheme = "https",
-                            Host = streamingEndpoint.HostName,
-                            Path = path.Paths.First()
-                        };
+                            type = LocatorsOutputModel.LocatorType.DASH;
+                            uriBuilder = new UriBuilder
+                            {
+                                Scheme = "https",
+                                Host = streamingEndpoint.HostName,
+                                Path = path.Paths.First() + ".mpd"
+                            };
+                        }
+                        else if (path.StreamingProtocol == StreamingPolicyStreamingProtocol.Hls)
+                        {
+                            type = LocatorsOutputModel.LocatorType.HLS;
+                            uriBuilder = new UriBuilder
+                            {
+                                Scheme = "https",
+                                Host = streamingEndpoint.HostName,
+                                Path = path.Paths.First() + ".m3u8"
+                            };
+                        }
+                        else
+                        {
+                            type = LocatorsOutputModel.LocatorType.Smooth;
+                            uriBuilder = new UriBuilder
+                            {
+                                Scheme = "https",
+                                Host = streamingEndpoint.HostName,
+                                Path = path.Paths.First()
+                            };
+                        }
 
                         return new LocatorsOutputModel.Locator
                         {
-                            url = uriBuilder.Uri
+                            Type = type,
+                            Url = uriBuilder.Uri
                         };
                     })
                     .ToList();

@@ -128,7 +128,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             foreach (string liveEventName in serviceList.LiveEvents)
             {
                 string assetName = $"LiveStreamingApi-Asset-{liveEventName}-{Guid.NewGuid().ToString()}";
-                string manifestName = "output";
+                string manifestName = "manifest";
                 string liveOutputName = $"LiveStreamingApi-LiveOutput-{liveEventName}-{Guid.NewGuid().ToString()}";
                 string streamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEventName}-{Guid.NewGuid().ToString()}";
 

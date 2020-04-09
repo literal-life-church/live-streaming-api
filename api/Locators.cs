@@ -45,10 +45,10 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
             try
             {
-                List<LocatorsOutputModel> locators = await FetchLocatorsAsync(input);
+                LocatorsOutputModel locators = await FetchLocatorsAsync(input);
                 return CreateSuccess(locators);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return CreateError("An internal error occured during. Check the logs.");
             }
@@ -69,7 +69,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             };
         }
 
-        private static HttpResponseMessage CreateSuccess(List<LocatorsOutputModel> locators)
+        private static HttpResponseMessage CreateSuccess(LocatorsOutputModel locators)
         {
             string successJson = JsonConvert.SerializeObject(locators);
 
@@ -98,9 +98,14 @@ namespace LiteralLifeChurch.LiveStreamingApi
             };
         }
 
-        private static async Task<List<LocatorsOutputModel>> FetchLocatorsAsync(LocatorsInputModel input)
+        private static async Task<LocatorsOutputModel> FetchLocatorsAsync(LocatorsInputModel input)
         {
-            List<LocatorsOutputModel> allLocators = new List<LocatorsOutputModel>();
+            LocatorsOutputModel allLocators = new LocatorsOutputModel
+            {
+                IsLive = false,
+                LiveEvents = new List<LocatorsOutputModel.LiveEvent>()
+            };
+
             ConfigurationModel config = configService.GetConfiguration();
 
             // 1. Authenticate with Azure
@@ -122,13 +127,18 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     liveEventName: liveEventName
                 );
 
-                LiveOutput firstLiveOutput = liveOutputsPage.ToList().First();
+                List<LiveOutput> liveOutputs = liveOutputsPage.ToList();
+
+                if (!liveOutputs.Any())
+                {
+                    continue;
+                }
 
                 // 4. Fetch the Locators for the Asset
                 ListStreamingLocatorsResponse locatorResponse = await client.Assets.ListStreamingLocatorsAsync(
                     resourceGroupName: config.ResourceGroup,
                     accountName: config.AccountName,
-                    assetName: firstLiveOutput.AssetName
+                    assetName: liveOutputs.First().AssetName
                 );
 
                 AssetStreamingLocator firstStreamingLocator = locatorResponse.StreamingLocators.First();
@@ -140,17 +150,27 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     streamingLocatorName: firstStreamingLocator.Name
                 );
 
+                if (!paths.StreamingPaths.Any())
+                {
+                    continue;
+                }
+
+                if (!paths.StreamingPaths.First().Paths.Any())
+                {
+                    continue;
+                }
+
                 // 6. Build the URL
-                List<LocatorsOutputModel.Locator> locators = paths
+                List<LocatorsOutputModel.LiveEvent.Locator> locators = paths
                     .StreamingPaths
                     .Select(path =>
                     {
-                        LocatorsOutputModel.LocatorType type = LocatorsOutputModel.LocatorType.DASH;
+                        LocatorsOutputModel.LiveEvent.Locator.LocatorType type = LocatorsOutputModel.LiveEvent.Locator.LocatorType.DASH;
                         UriBuilder uriBuilder;
 
                         if (path.StreamingProtocol == StreamingPolicyStreamingProtocol.Dash)
                         {
-                            type = LocatorsOutputModel.LocatorType.DASH;
+                            type = LocatorsOutputModel.LiveEvent.Locator.LocatorType.DASH;
                             uriBuilder = new UriBuilder
                             {
                                 Scheme = "https",
@@ -160,7 +180,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                         }
                         else if (path.StreamingProtocol == StreamingPolicyStreamingProtocol.Hls)
                         {
-                            type = LocatorsOutputModel.LocatorType.HLS;
+                            type = LocatorsOutputModel.LiveEvent.Locator.LocatorType.HLS;
                             uriBuilder = new UriBuilder
                             {
                                 Scheme = "https",
@@ -170,7 +190,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                         }
                         else
                         {
-                            type = LocatorsOutputModel.LocatorType.Smooth;
+                            type = LocatorsOutputModel.LiveEvent.Locator.LocatorType.Smooth;
                             uriBuilder = new UriBuilder
                             {
                                 Scheme = "https",
@@ -179,7 +199,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                             };
                         }
 
-                        return new LocatorsOutputModel.Locator
+                        return new LocatorsOutputModel.LiveEvent.Locator
                         {
                             Type = type,
                             Url = uriBuilder.Uri
@@ -188,15 +208,16 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     .ToList();
 
                 // 7. Build the return model
-                LocatorsOutputModel output = new LocatorsOutputModel
+                LocatorsOutputModel.LiveEvent output = new LocatorsOutputModel.LiveEvent
                 {
                     LiveEventName = liveEventName,
                     Locators = locators
                 };
 
-                allLocators.Add(output);
+                allLocators.LiveEvents.Add(output);
             }
 
+            allLocators.IsLive = allLocators.LiveEvents.Any();
             return allLocators;
         }
     }

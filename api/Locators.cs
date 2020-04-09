@@ -210,7 +210,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 // 7. Build the return model
                 LocatorsOutputModel.LiveEvent output = new LocatorsOutputModel.LiveEvent
                 {
-                    LiveEventName = liveEventName,
+                    Name = liveEventName,
                     Locators = locators
                 };
 

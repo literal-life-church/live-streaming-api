@@ -16,8 +16,8 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
 
         public class LiveEvent
         {
-            [JsonProperty("liveEventName")]
-            public string LiveEventName { get; set; }
+            [JsonProperty("Name")]
+            public string Name { get; set; }
 
             [JsonProperty("locators")]
             public List<Locator> Locators { get; set; }

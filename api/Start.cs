@@ -70,12 +70,12 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
         private static HttpResponseMessage CreateSuccess(string message)
         {
-            SuccessModel error = new SuccessModel()
+            SuccessModel success = new SuccessModel()
             {
                 Message = message
             };
 
-            string successJson = JsonConvert.SerializeObject(error);
+            string successJson = JsonConvert.SerializeObject(success);
 
             return new HttpResponseMessage(HttpStatusCode.Created)
             {
@@ -128,7 +128,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             foreach (string liveEventName in serviceList.LiveEvents)
             {
                 string assetName = $"LiveStreamingApi-Asset-{liveEventName}-{Guid.NewGuid().ToString()}";
-                string manifestName = "output";
+                string manifestName = "manifest";
                 string liveOutputName = $"LiveStreamingApi-LiveOutput-{liveEventName}-{Guid.NewGuid().ToString()}";
                 string streamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEventName}-{Guid.NewGuid().ToString()}";
 

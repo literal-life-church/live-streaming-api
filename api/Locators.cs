@@ -32,7 +32,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "locators")] HttpRequest req,
             ILogger log)
         {
-            LocatorsInputModel input = GetInputModel(req);
+            InputRequestModel input = GetInputModel(req);
 
             if (!input.LiveEvents.Any() && string.IsNullOrEmpty(input.StreamingEndpoint))
                 return CreateError("Input requires the name of a streaming endpoint and the name of one or more live events");
@@ -79,7 +79,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             };
         }
 
-        private static LocatorsInputModel GetInputModel(HttpRequest req)
+        private static InputRequestModel GetInputModel(HttpRequest req)
         {
             List<string> liveEvents = req.Query[EventsQuery]
                .ToString()
@@ -91,14 +91,14 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 .ToString()
                 .Trim();
 
-            return new LocatorsInputModel()
+            return new InputRequestModel()
             {
                 LiveEvents = liveEvents,
                 StreamingEndpoint = streamingEndpoint
             };
         }
 
-        private static async Task<LocatorsOutputModel> FetchLocatorsAsync(LocatorsInputModel input)
+        private static async Task<LocatorsOutputModel> FetchLocatorsAsync(InputRequestModel input)
         {
             LocatorsOutputModel allLocators = new LocatorsOutputModel
             {

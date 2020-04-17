@@ -1,5 +1,6 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.exceptions;
 using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services.validators
 {
@@ -7,18 +8,19 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
     {
         private const string EndpointQuery = "endpoint";
         private const string EventsQuery = "events";
-        private readonly HttpRequest Request;
 
-        public RequestValidator(HttpRequest request)
-        {
-            Request = request;
-        }
-
-        public void Validate()
+        public void Validate(HttpRequest request)
         {
             BaseException exception = null;
+            bool hasEndpoint = request.Query.ContainsKey(EndpointQuery) && !string.IsNullOrEmpty(request.Query[EndpointQuery].ToString().Trim());
+            bool hasEvents = request.Query.ContainsKey(EventsQuery) && !string.IsNullOrEmpty(request.Query[EventsQuery].ToString().Trim()) && request.Query[EventsQuery]
+                .ToString()
+                .Split(',')
+                .Select(eventName => eventName.Trim())
+                .Where(eventName => !string.IsNullOrEmpty(eventName))
+                .Any();
 
-            if (!Request.Query.ContainsKey(EndpointQuery) && !Request.Query.ContainsKey(EventsQuery))
+            if (!hasEndpoint || !!hasEvents)
             {
                 exception = new InputValidationException()
                 {
@@ -26,7 +28,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
                     Message = "Input requires the name of a streaming endpoint and the name of one or more live events"
                 };
             }
-            else if (Request.Query.ContainsKey(EndpointQuery))
+            else if (!hasEndpoint)
             {
                 exception = new InputValidationException()
                 {
@@ -34,7 +36,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
                     Message = "Input requires the name of a streaming endpoint"
                 };
             }
-            else if (Request.Query.ContainsKey(EventsQuery))
+            else if (!hasEvents)
             {
                 exception = new InputValidationException()
                 {

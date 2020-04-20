@@ -1,4 +1,6 @@
+using LiteralLifeChurch.LiveStreamingApi.exceptions;
 using LiteralLifeChurch.LiveStreamingApi.models;
+using LiteralLifeChurch.LiveStreamingApi.models.input;
 using LiteralLifeChurch.LiveStreamingApi.services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
@@ -16,12 +18,22 @@ namespace LiteralLifeChurch.LiveStreamingApi
     {
         private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
+        private static readonly InputRequestService inputRequestService = new InputRequestService();
 
         [FunctionName("Status")]
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "status")] HttpRequest req,
             ILogger log)
         {
+            try
+            {
+                InputRequestModel inputModel = await inputRequestService.GetInputRequestModel(req);
+            }
+            catch (BaseException e)
+            {
+                return CreateError(e.Message);
+            }
+
             return CreateSuccess("Shut down");
         }
 
@@ -37,6 +49,21 @@ namespace LiteralLifeChurch.LiveStreamingApi
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(successJson, Encoding.UTF8, "application/json")
+            };
+        }
+
+        private static HttpResponseMessage CreateError(string message)
+        {
+            ErrorModel error = new ErrorModel()
+            {
+                Message = message
+            };
+
+            string errorJson = JsonConvert.SerializeObject(error);
+
+            return new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent(errorJson, Encoding.UTF8, "application/json")
             };
         }
     }

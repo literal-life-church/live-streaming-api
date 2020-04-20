@@ -10,31 +10,29 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
     {
         private const string EndpointQuery = "endpoint";
         private const string EventsQuery = "events";
-        private readonly HttpRequest Request;
-        private readonly RequestValidator RequestValidator;
+        private readonly InputValidator InputValidator;
         private readonly ServiceValidator ServiceValidator;
 
-        public InputRequestService(HttpRequest request)
+        public InputRequestService()
         {
-            Request = request;
-            RequestValidator = new RequestValidator();
+            InputValidator = new InputValidator();
             ServiceValidator = new ServiceValidator();
         }
 
-        public async Task<InputRequestModel> GetInputRequestModel()
+        public async Task<InputRequestModel> GetInputRequestModel(HttpRequest request)
         {
-            RequestValidator.Validate(Request);
+            InputValidator.Validate(request);
 
             InputRequestModel model = new InputRequestModel()
             {
-                LiveEvents = Request.Query[EventsQuery]
+                LiveEvents = request.Query[EventsQuery]
                     .ToString()
                     .Split(',')
                     .Select(eventName => eventName.Trim())
                     .Where(eventName => !string.IsNullOrEmpty(eventName))
                     .ToList(),
 
-                StreamingEndpoint = Request.Query[EndpointQuery]
+                StreamingEndpoint = request.Query[EndpointQuery]
                     .ToString()
                     .Trim()
             };

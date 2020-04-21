@@ -1,12 +1,15 @@
+using LiteralLifeChurch.LiveStreamingApi.controllers;
 using LiteralLifeChurch.LiveStreamingApi.exceptions;
 using LiteralLifeChurch.LiveStreamingApi.models;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
+using LiteralLifeChurch.LiveStreamingApi.models.output;
 using LiteralLifeChurch.LiveStreamingApi.services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -16,9 +19,8 @@ namespace LiteralLifeChurch.LiveStreamingApi
 {
     public static class Status
     {
-        private static readonly AuthenticationService authService = new AuthenticationService();
-        private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly InputRequestService inputRequestService = new InputRequestService();
+        private static readonly StatusController statusController = new StatusController();
 
         [FunctionName("Status")]
         public static async Task<HttpResponseMessage> Run(
@@ -28,23 +30,22 @@ namespace LiteralLifeChurch.LiveStreamingApi
             try
             {
                 InputRequestModel inputModel = await inputRequestService.GetInputRequestModel(req);
+                StatusOutputModel outputModel = await statusController.GetStatus(inputModel);
+                return CreateSuccess(outputModel);
             }
             catch (BaseException e)
             {
                 return CreateError(e.Message);
             }
-
-            return CreateSuccess("Shut down");
+            catch (Exception e)
+            {
+                return CreateError(e.Message);
+            }
         }
 
-        private static HttpResponseMessage CreateSuccess(string message)
+        private static HttpResponseMessage CreateSuccess(StatusOutputModel outputModel)
         {
-            SuccessModel success = new SuccessModel()
-            {
-                Message = message
-            };
-
-            string successJson = JsonConvert.SerializeObject(success);
+            string successJson = JsonConvert.SerializeObject(outputModel);
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {

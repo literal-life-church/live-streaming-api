@@ -1,4 +1,4 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.models;
+﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using Microsoft.Azure.Management.Media;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;

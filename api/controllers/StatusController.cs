@@ -1,7 +1,6 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.models;
+﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
 using LiteralLifeChurch.LiveStreamingApi.models.output;
-using LiteralLifeChurch.LiveStreamingApi.services;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
 using Microsoft.Rest.Azure;
@@ -11,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi.controllers
 {
-    public class StatusController
+    public class StatusController : IController
     {
-        private readonly AuthenticationService AuthService;
-        private readonly ConfigurationService ConfigService;
+        private readonly AzureMediaServicesClient Client;
+        private readonly ConfigurationModel Config;
 
         private const StatusOutputModel.Status deleting = StatusOutputModel.Status.Deleting;
         private const StatusOutputModel.Status error = StatusOutputModel.Status.Error;
@@ -24,28 +23,25 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
         private const StatusOutputModel.Status stopped = StatusOutputModel.Status.Stopped;
         private const StatusOutputModel.Status stopping = StatusOutputModel.Status.Stopping;
 
-        public StatusController()
+        public StatusController(AzureMediaServicesClient client, ConfigurationModel config)
         {
-            AuthService = new AuthenticationService();
-            ConfigService = new ConfigurationService();
+            Client = client;
+            Config = config;
         }
 
         public async Task<StatusOutputModel> GetStatus(InputRequestModel input)
         {
-            AzureMediaServicesClient client = await AuthService.GetClientAsync();
-            ConfigurationModel config = ConfigService.GetConfiguration();
-
             // Get the Streaming Endpoint
-            StreamingEndpoint endpoint = await client.StreamingEndpoints.GetAsync(
-                resourceGroupName: config.ResourceGroup,
-                accountName: config.AccountName,
+            StreamingEndpoint endpoint = await Client.StreamingEndpoints.GetAsync(
+                resourceGroupName: Config.ResourceGroup,
+                accountName: Config.AccountName,
                 streamingEndpointName: input.StreamingEndpoint
             );
 
             // Get all of the Live Events, then filter them
-            IPage<LiveEvent> eventsPage = await client.LiveEvents.ListAsync(
-                resourceGroupName: config.ResourceGroup,
-                accountName: config.AccountName
+            IPage<LiveEvent> eventsPage = await Client.LiveEvents.ListAsync(
+                resourceGroupName: Config.ResourceGroup,
+                accountName: Config.AccountName
             );
 
             List<LiveEvent> filteredEvents = eventsPage

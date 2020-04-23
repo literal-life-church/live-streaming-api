@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace LiteralLifeChurch.LiveStreamingApi.models
+namespace LiteralLifeChurch.LiveStreamingApi.models.bootstrapping
 {
-    public class ConfigurationModel
+    public class ConfigurationModel : IBootstrappingModel
     {
         public string AccountName { get; set; }
 

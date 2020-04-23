@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services.validators
 {
-    public class InputValidator
+    public class InputValidator : IValidatorService
     {
         private const string EndpointQuery = "endpoint";
         private const string EventsQuery = "events";
@@ -19,7 +19,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
                 .Where(eventName => !string.IsNullOrEmpty(eventName))
                 .Any();
 
-            if (!hasEndpoint || !hasEvents)
+            if (!hasEndpoint && !hasEvents)
             {
                 throw new InputValidationException()
                 {

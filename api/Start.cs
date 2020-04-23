@@ -1,5 +1,6 @@
-using LiteralLifeChurch.LiveStreamingApi.models;
+using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
+using LiteralLifeChurch.LiveStreamingApi.models.output;
 using LiteralLifeChurch.LiveStreamingApi.services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Management.Media;

@@ -1,5 +1,5 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.exceptions;
-using LiteralLifeChurch.LiveStreamingApi.models;
+using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
@@ -10,27 +10,23 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services.validators
 {
-    public class ServiceValidator
+    public class ServiceValidator : IValidatorService
     {
-        private readonly AuthenticationService AuthService;
-        private readonly ConfigurationService ConfigService;
+        private readonly AzureMediaServicesClient Client;
+        private readonly ConfigurationModel Config;
 
-        public ServiceValidator()
+        public ServiceValidator(AzureMediaServicesClient client, ConfigurationModel config)
         {
-            AuthService = new AuthenticationService();
-            ConfigService = new ConfigurationService();
+            Client = client;
+            Config = config;
         }
 
         public async Task Validate(InputRequestModel input)
         {
-            // Authenticate with Azure
-            AzureMediaServicesClient client = await AuthService.GetClientAsync();
-            ConfigurationModel config = ConfigService.GetConfiguration();
-
             // Validate the Streaming Endpoint
-            IPage<StreamingEndpoint> endpointsPage = await client.StreamingEndpoints.ListAsync(
-                resourceGroupName: config.ResourceGroup,
-                accountName: config.AccountName
+            IPage<StreamingEndpoint> endpointsPage = await Client.StreamingEndpoints.ListAsync(
+                resourceGroupName: Config.ResourceGroup,
+                accountName: Config.AccountName
             );
 
             List<StreamingEndpoint> endpoints = endpointsPage.ToList();
@@ -48,9 +44,9 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
             }
 
             // Validate the Live Events
-            IPage<LiveEvent> eventsPage = await client.LiveEvents.ListAsync(
-                resourceGroupName: config.ResourceGroup,
-                accountName: config.AccountName
+            IPage<LiveEvent> eventsPage = await Client.LiveEvents.ListAsync(
+                resourceGroupName: Config.ResourceGroup,
+                accountName: Config.AccountName
             );
 
             List<LiveEvent> events = eventsPage.ToList();

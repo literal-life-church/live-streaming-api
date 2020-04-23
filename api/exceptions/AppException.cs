@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Net;
 
 namespace LiteralLifeChurch.LiveStreamingApi.exceptions
 {
-    public abstract class BaseException : Exception
+    public abstract class AppException : Exception
     {
         [JsonProperty("developerMessage")]
         public string DeveloperMessage { get; set; }
@@ -12,6 +13,6 @@ namespace LiteralLifeChurch.LiveStreamingApi.exceptions
         public new string Message { get; set; }
 
         [JsonProperty("status")]
-        public int Status { get; set; }
+        public HttpStatusCode Status { get; set; }
     }
 }

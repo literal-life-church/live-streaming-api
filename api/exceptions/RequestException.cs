@@ -1,10 +1,12 @@
-﻿namespace LiteralLifeChurch.LiveStreamingApi.exceptions
+﻿using System.Net;
+
+namespace LiteralLifeChurch.LiveStreamingApi.exceptions
 {
-    public abstract class RequestException : BaseException
+    public abstract class RequestException : AppException
     {
         public RequestException()
         {
-            Status = 400;
+            Status = HttpStatusCode.BadRequest;
         }
     }
 }

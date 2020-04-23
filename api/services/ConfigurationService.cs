@@ -1,4 +1,4 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.models;
+﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using System;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services

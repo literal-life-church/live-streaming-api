@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace LiteralLifeChurch.LiveStreamingApi.models.output
 {
-    public class StatusOutputModel
+    public class StatusOutputModel : IOutputModel
     {
         [JsonProperty("endpoint")]
         public Resource Endpoint { get; set; }

@@ -1,6 +1,8 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.models.input;
+﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.models.input;
 using LiteralLifeChurch.LiveStreamingApi.services.validators;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Management.Media;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,10 +15,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
         private readonly InputValidator InputValidator;
         private readonly ServiceValidator ServiceValidator;
 
-        public InputRequestService()
+        public InputRequestService(AzureMediaServicesClient client, ConfigurationModel config)
         {
             InputValidator = new InputValidator();
-            ServiceValidator = new ServiceValidator();
+            ServiceValidator = new ServiceValidator(client, config);
         }
 
         public async Task<InputRequestModel> GetInputRequestModel(HttpRequest request)

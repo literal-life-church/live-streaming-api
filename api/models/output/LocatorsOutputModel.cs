@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 namespace LiteralLifeChurch.LiveStreamingApi.models.output
 {
-    public class LocatorsOutputModel
+    public class LocatorsOutputModel : IOutputModel
     {
         [JsonProperty("isLive")]
         public bool IsLive { get; set; }

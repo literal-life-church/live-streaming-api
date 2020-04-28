@@ -21,7 +21,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
             Config = config;
         }
 
-        public async Task Validate(InputRequestModel input)
+        public async Task ValidateAsync(InputRequestModel input)
         {
             // Validate the Streaming Endpoint
             IPage<StreamingEndpoint> endpointsPage = await Client.StreamingEndpoints.ListAsync(

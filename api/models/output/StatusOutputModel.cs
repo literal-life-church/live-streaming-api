@@ -7,11 +7,11 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
 {
     public class StatusOutputModel : IOutputModel
     {
-        [JsonProperty("endpoint")]
-        public Resource Endpoint { get; set; }
-
         [JsonProperty("events")]
-        public List<Resource> Events { get; set; }
+        public List<Resource> LiveEvents { get; set; }
+
+        [JsonProperty("endpoint")]
+        public Resource StreamingEndpoint { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("summary")]

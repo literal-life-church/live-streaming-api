@@ -4,6 +4,7 @@ using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
 using LiteralLifeChurch.LiveStreamingApi.models.output;
 using LiteralLifeChurch.LiveStreamingApi.services;
+using LiteralLifeChurch.LiveStreamingApi.services.common;
 using LiteralLifeChurch.LiveStreamingApi.services.responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Management.Media;
@@ -36,8 +37,9 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 InputRequestService inputRequestService = new InputRequestService(client, config);
                 StatusController statusController = new StatusController(client, config);
 
-                InputRequestModel inputModel = await inputRequestService.GetInputRequestModel(req);
-                StatusOutputModel outputModel = await statusController.GetStatus(inputModel);
+                InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
+                StatusOutputModel outputModel = await statusController.GetStatusAsync(inputModel);
+
                 return successResponseService.CreateResponse(outputModel);
             }
             catch (AppException e)

@@ -1,4 +1,5 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
+﻿using LiteralLifeChurch.LiveStreamingApi.enums;
+using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
 using LiteralLifeChurch.LiveStreamingApi.models.output;
 using Microsoft.Azure.Management.Media;
@@ -15,13 +16,13 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
         private readonly AzureMediaServicesClient Client;
         private readonly ConfigurationModel Config;
 
-        private const StatusOutputModel.Status deleting = StatusOutputModel.Status.Deleting;
-        private const StatusOutputModel.Status error = StatusOutputModel.Status.Error;
-        private const StatusOutputModel.Status running = StatusOutputModel.Status.Running;
-        private const StatusOutputModel.Status scaling = StatusOutputModel.Status.Scaling;
-        private const StatusOutputModel.Status starting = StatusOutputModel.Status.Starting;
-        private const StatusOutputModel.Status stopped = StatusOutputModel.Status.Stopped;
-        private const StatusOutputModel.Status stopping = StatusOutputModel.Status.Stopping;
+        private const ResourceStatusEnum deleting = ResourceStatusEnum.Deleting;
+        private const ResourceStatusEnum error = ResourceStatusEnum.Error;
+        private const ResourceStatusEnum running = ResourceStatusEnum.Running;
+        private const ResourceStatusEnum scaling = ResourceStatusEnum.Scaling;
+        private const ResourceStatusEnum starting = ResourceStatusEnum.Starting;
+        private const ResourceStatusEnum stopped = ResourceStatusEnum.Stopped;
+        private const ResourceStatusEnum stopping = ResourceStatusEnum.Stopping;
 
         public StatusService(AzureMediaServicesClient client, ConfigurationModel config)
         {
@@ -74,7 +75,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             };
         }
 
-        private StatusOutputModel.Status DetermineSummary(StatusOutputModel.Resource endpoint, List<StatusOutputModel.Resource> events)
+        private ResourceStatusEnum DetermineSummary(StatusOutputModel.Resource endpoint, List<StatusOutputModel.Resource> events)
         {
             if (endpoint.Status == error || events.Any(liveEvent => liveEvent.Status == error))
             {
@@ -110,7 +111,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             }
         }
 
-        private StatusOutputModel.Status MapEventStatusToOurStatus(LiveEventResourceState? state)
+        private ResourceStatusEnum MapEventStatusToOurStatus(LiveEventResourceState? state)
         {
             if (!state.HasValue)
             {
@@ -143,7 +144,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             }
         }
 
-        private StatusOutputModel.Status MapStreamingStatusToOurStatus(StreamingEndpointResourceState? state)
+        private ResourceStatusEnum MapStreamingStatusToOurStatus(StreamingEndpointResourceState? state)
         {
             if (!state.HasValue)
             {

@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using LiteralLifeChurch.LiveStreamingApi.enums;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace LiteralLifeChurch.LiveStreamingApi.models.output
 {
@@ -15,7 +15,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
 
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("summary")]
-        public Status Summary { get; set; }
+        public ResourceStatusEnum Summary { get; set; }
 
         public class Resource
         {
@@ -24,31 +24,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
 
             [JsonConverter(typeof(StringEnumConverter))]
             [JsonProperty("status")]
-            public Status Status { get; set; }
-        }
-
-        public enum Status
-        {
-            [EnumMember(Value = "deleting")]
-            Deleting,
-
-            [EnumMember(Value = "error")]
-            Error,
-
-            [EnumMember(Value = "running")]
-            Running,
-
-            [EnumMember(Value = "scaling")]
-            Scaling,
-
-            [EnumMember(Value = "starting")]
-            Starting,
-
-            [EnumMember(Value = "stopped")]
-            Stopped,
-
-            [EnumMember(Value = "stopping")]
-            Stopping
+            public ResourceStatusEnum Status { get; set; }
         }
     }
 }

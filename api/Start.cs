@@ -23,7 +23,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
         private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
-        private static readonly SuccessResponseService<StatusOutputModel> successResponseService = new SuccessResponseService<StatusOutputModel>();
+        private static readonly SuccessResponseService<StatusChangeOutputModel> successResponseService = new SuccessResponseService<StatusChangeOutputModel>();
 
         [FunctionName("Start")]
         public static async Task<HttpResponseMessage> Run(
@@ -39,7 +39,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 StartController startController = new StartController(client, config);
 
                 InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
-                StatusOutputModel outputModel = await startController.StartServicesAsync(inputModel);
+                StatusChangeOutputModel outputModel = await startController.StartServicesAsync(inputModel);
 
                 return successResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
             }

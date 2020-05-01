@@ -6,9 +6,9 @@ using Microsoft.Azure.Management.Media;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services
+namespace LiteralLifeChurch.LiveStreamingApi.services.common
 {
-    public class InputRequestService
+    public class InputRequestService : ICommonService
     {
         private const string EndpointQuery = "endpoint";
         private const string EventsQuery = "events";
@@ -21,7 +21,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
             ServiceValidator = new ServiceValidator(client, config);
         }
 
-        public async Task<InputRequestModel> GetInputRequestModel(HttpRequest request)
+        public async Task<InputRequestModel> GetInputRequestModelAsync(HttpRequest request)
         {
             InputValidator.Validate(request);
 
@@ -39,7 +39,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
                     .Trim()
             };
 
-            await ServiceValidator.Validate(model);
+            await ServiceValidator.ValidateAsync(model);
             return model;
         }
     }

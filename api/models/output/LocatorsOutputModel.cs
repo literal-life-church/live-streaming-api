@@ -8,16 +8,22 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
 {
     public class LocatorsOutputModel : IOutputModel
     {
-        [JsonProperty("isLive")]
-        public bool IsLive { get; set; }
-
-        [JsonProperty("liveEvents")]
+        [JsonProperty("events")]
         public List<LiveEvent> LiveEvents { get; set; }
+
+        [JsonProperty("isAllLive")]
+        public bool IsAllLive { get; set; }
+
+        [JsonProperty("isAnyLive")]
+        public bool IsAnyLive { get; set; }
 
         public class LiveEvent
         {
-            [JsonProperty("Name")]
+            [JsonProperty("name")]
             public string Name { get; set; }
+
+            [JsonProperty("isLive")]
+            public bool IsLive { get; set; }
 
             [JsonProperty("locators")]
             public List<Locator> Locators { get; set; }
@@ -34,10 +40,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
                 public enum LocatorType
                 {
                     [EnumMember(Value = "dash")]
-                    DASH,
+                    Dash,
 
                     [EnumMember(Value = "hls")]
-                    HLS,
+                    Hls,
 
                     [EnumMember(Value = "smooth")]
                     Smooth

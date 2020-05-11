@@ -1,4 +1,5 @@
 using LiteralLifeChurch.LiveStreamingApi.controllers;
+using LiteralLifeChurch.LiveStreamingApi.enums;
 using LiteralLifeChurch.LiveStreamingApi.exceptions;
 using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
@@ -23,16 +24,18 @@ namespace LiteralLifeChurch.LiveStreamingApi
         private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
         private static readonly SuccessResponseService<StatusChangeOutputModel> successResponseService = new SuccessResponseService<StatusChangeOutputModel>();
+        private static readonly WebhookService webhookService = new WebhookService();
 
         [FunctionName("Stop")]
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "stop")] HttpRequest req,
             ILogger log)
         {
+            ConfigurationModel config = configService.GetConfiguration();
+
             try
             {
                 AzureMediaServicesClient client = await authService.GetClientAsync();
-                ConfigurationModel config = configService.GetConfiguration();
 
                 InputRequestService inputRequestService = new InputRequestService(client, config);
                 StopController stopController = new StopController(client, config);
@@ -40,14 +43,17 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
                 StatusChangeOutputModel outputModel = await stopController.StopServicesAsync(inputModel);
 
+                await webhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Stop, outputModel.Status.Summary);
                 return successResponseService.CreateResponse(outputModel);
             }
             catch (AppException e)
             {
+                await webhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Stop, ResourceStatusEnum.Error);
                 return errorResponseService.CreateResponse(e);
             }
             catch (Exception e)
             {
+                await webhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Stop, ResourceStatusEnum.Error);
                 return errorResponseService.CreateResponse(e);
             }
         }

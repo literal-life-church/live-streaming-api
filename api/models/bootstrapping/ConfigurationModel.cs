@@ -17,5 +17,13 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.bootstrapping
         public string SubscriptionId { get; set; }
 
         public string TenantId { get; set; }
+
+        public Uri WebhookStartFailure { get; set; }
+
+        public Uri WebhookStartSuccess { get; set; }
+
+        public Uri WebhookStopFailure { get; set; }
+
+        public Uri WebhookStopSuccess { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using LiteralLifeChurch.LiveStreamingApi.controllers;
+using LiteralLifeChurch.LiveStreamingApi.enums;
 using LiteralLifeChurch.LiveStreamingApi.exceptions;
 using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
@@ -30,10 +31,11 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "start")] HttpRequest req,
             ILogger log)
         {
+            ConfigurationModel config = configService.GetConfiguration();
+
             try
             {
                 AzureMediaServicesClient client = await authService.GetClientAsync();
-                ConfigurationModel config = configService.GetConfiguration();
 
                 InputRequestService inputRequestService = new InputRequestService(client, config);
                 StartController startController = new StartController(client, config);
@@ -41,14 +43,17 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
                 StatusChangeOutputModel outputModel = await startController.StartServicesAsync(inputModel);
 
+                await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary);
                 return successResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
             }
             catch (AppException e)
             {
+                await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
                 return errorResponseService.CreateResponse(e);
             }
             catch (Exception e)
             {
+                await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
                 return errorResponseService.CreateResponse(e);
             }
         }

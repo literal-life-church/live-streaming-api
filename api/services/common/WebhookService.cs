@@ -15,7 +15,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
     {
         public async Task CallWebhookAsync(Uri uri, ActionEnum action, ResourceStatusEnum status)
         {
-            if (uri == null) return;
+            if (uri == null)
+            {
+                return;
+            }
 
             WebhookOutputModel model = new WebhookOutputModel
             {
@@ -45,7 +48,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             }
         }
 
-        private Uri AddActionAndStatusToUri(Uri uri, WebhookOutputModel model)
+        private static Uri AddActionAndStatusToUri(Uri uri, WebhookOutputModel model)
         {
             NameValueCollection queryParams = HttpUtility.ParseQueryString(uri.Query);
             UriBuilder uriBuilder = new UriBuilder(uri);
@@ -57,7 +60,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             return uriBuilder.Uri;
         }
 
-        private bool Is2xxResponse(HttpStatusCode statusCode)
+        private static bool Is2xxResponse(HttpStatusCode statusCode)
         {
             int underlyingStatusNumber = (int)statusCode;
             return 200 <= underlyingStatusNumber && underlyingStatusNumber <= 299;

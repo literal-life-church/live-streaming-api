@@ -13,7 +13,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 {
     public class WebhookService : IService
     {
-        public async Task CallWebhookAsync(Uri uri, ActionEnum action, ResourceStatusEnum status)
+        public static async Task CallWebhookAsync(Uri uri, ActionEnum action, ResourceStatusEnum status)
         {
             if (uri == null)
             {

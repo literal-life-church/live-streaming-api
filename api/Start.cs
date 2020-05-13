@@ -25,7 +25,6 @@ namespace LiteralLifeChurch.LiveStreamingApi
         private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
         private static readonly SuccessResponseService<StatusChangeOutputModel> successResponseService = new SuccessResponseService<StatusChangeOutputModel>();
-        private static readonly WebhookService webhookService = new WebhookService();
 
         [FunctionName("Start")]
         public static async Task<HttpResponseMessage> Run(
@@ -44,17 +43,17 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
                 StatusChangeOutputModel outputModel = await startController.StartServicesAsync(inputModel);
 
-                await webhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary);
+                await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary);
                 return successResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
             }
             catch (AppException e)
             {
-                await webhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
+                await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
                 return errorResponseService.CreateResponse(e);
             }
             catch (Exception e)
             {
-                await webhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
+                await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
                 return errorResponseService.CreateResponse(e);
             }
         }

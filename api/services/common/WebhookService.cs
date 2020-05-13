@@ -20,20 +20,8 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
                 return;
             }
 
-            WebhookOutputModel model = new WebhookOutputModel
-            {
-                Action = action,
-                Status = status
-            };
-
-            uri = AddActionAndStatusToUri(uri, model);
-
             RestClient client = new RestClient();
-            RestRequest request = new RestRequest(uri, Method.POST);
-            string payload = JsonConvert.SerializeObject(model);
-
-            request.AddParameter("application/json", payload, ParameterType.RequestBody);
-            request.RequestFormat = DataFormat.Json;
+            RestRequest request = CreateRequest(uri, action, status);
 
             IRestResponse response = await client.ExecuteAsync(request);
             bool isSuccessful = Is2xxResponse(response.StatusCode);
@@ -58,6 +46,24 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 
             uriBuilder.Query = queryParams.ToString();
             return uriBuilder.Uri;
+        }
+
+        public static RestRequest CreateRequest(Uri uri, ActionEnum action, ResourceStatusEnum status)
+        {
+            WebhookOutputModel model = new WebhookOutputModel
+            {
+                Action = action,
+                Status = status
+            };
+
+            uri = AddActionAndStatusToUri(uri, model);
+            RestRequest request = new RestRequest(uri, Method.POST);
+            string payload = JsonConvert.SerializeObject(model);
+
+            request.AddParameter("application/json", payload, ParameterType.RequestBody);
+            request.RequestFormat = DataFormat.Json;
+
+            return request;
         }
 
         private static bool Is2xxResponse(HttpStatusCode statusCode)

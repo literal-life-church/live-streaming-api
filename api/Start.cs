@@ -12,6 +12,7 @@ using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Sentry;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -31,30 +32,35 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "start")] HttpRequest req,
             ILogger log)
         {
-            ConfigurationModel config = configService.GetConfiguration();
-
-            try
+            using (SentrySdk.Init())
             {
-                AzureMediaServicesClient client = await authService.GetClientAsync();
+                ConfigurationModel config = configService.GetConfiguration();
 
-                InputRequestService inputRequestService = new InputRequestService(client, config);
-                StartController startController = new StartController(client, config);
+                try
+                {
+                    AzureMediaServicesClient client = await authService.GetClientAsync();
 
-                InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
-                StatusChangeOutputModel outputModel = await startController.StartServicesAsync(inputModel);
+                    InputRequestService inputRequestService = new InputRequestService(client, config);
+                    StartController startController = new StartController(client, config);
 
-                await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary);
-                return successResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
-            }
-            catch (AppException e)
-            {
-                await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
-                return errorResponseService.CreateResponse(e);
-            }
-            catch (Exception e)
-            {
-                await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
-                return errorResponseService.CreateResponse(e);
+                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
+                    StatusChangeOutputModel outputModel = await startController.StartServicesAsync(inputModel);
+
+                    await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary);
+                    return successResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
+                }
+                catch (AppException e)
+                {
+                    SentrySdk.CaptureException(e);
+                    await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
+                    return errorResponseService.CreateResponse(e);
+                }
+                catch (Exception e)
+                {
+                    SentrySdk.CaptureException(e);
+                    await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
+                    return errorResponseService.CreateResponse(e);
+                }
             }
         }
     }

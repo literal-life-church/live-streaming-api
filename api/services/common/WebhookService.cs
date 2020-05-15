@@ -3,6 +3,8 @@ using LiteralLifeChurch.LiveStreamingApi.exceptions;
 using LiteralLifeChurch.LiveStreamingApi.models.output;
 using Newtonsoft.Json;
 using RestSharp;
+using Sentry;
+using Sentry.Protocol;
 using System;
 using System.Collections.Specialized;
 using System.Net;
@@ -17,6 +19,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
         {
             if (uri == null)
             {
+                SentrySdk.AddBreadcrumb(message: "No URI for webhook call", category: "webhook", level: BreadcrumbLevel.Info);
                 return;
             }
 
@@ -33,6 +36,11 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
                     DeveloperMessage = "A call to the provided webhook returned a response other than 200 - 299",
                     Message = "Unable to make a call out to the provided webhook"
                 };
+            }
+            else
+            {
+                string message = string.Format("Called webhook for action {0}, and status {1}", action, status);
+                SentrySdk.AddBreadcrumb(message: message, category: "webhook", level: BreadcrumbLevel.Info);
             }
         }
 

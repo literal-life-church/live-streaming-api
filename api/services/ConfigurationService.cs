@@ -20,7 +20,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
 
         public ConfigurationModel GetConfiguration()
         {
-            ConfigurationModel model = new ConfigurationModel()
+            ConfigurationModel model = new ConfigurationModel
             {
                 AccountName = Environment.GetEnvironmentVariable(AccountName),
                 ClientId = Environment.GetEnvironmentVariable(ClientIdName),

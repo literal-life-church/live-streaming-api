@@ -51,17 +51,20 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 }
                 catch (AppException e)
                 {
-                    SentrySdk.CaptureException(e);
-                    await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
-                    return errorResponseService.CreateResponse(e);
+                    return await ReportError(config, e);
                 }
                 catch (Exception e)
                 {
-                    SentrySdk.CaptureException(e);
-                    await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
-                    return errorResponseService.CreateResponse(e);
+                    return await ReportError(config, e);
                 }
             }
+        }
+
+        private static async Task<HttpResponseMessage> ReportError(ConfigurationModel config, Exception exception)
+        {
+            SentrySdk.CaptureException(exception);
+            await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
+            return errorResponseService.CreateResponse(exception);
         }
     }
 }

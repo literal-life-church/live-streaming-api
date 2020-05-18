@@ -122,14 +122,12 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
 
             for (int i = 0; i < preRunServiceStatus.LiveEvents.Count; ++i)
             {
-                StatusChangeOutputModel.Diff.Resource diff = new StatusChangeOutputModel.Diff.Resource
+                liveEventDiff.Add(new StatusChangeOutputModel.Diff.Resource
                 {
                     Name = preRunServiceStatus.LiveEvents[i].Name,
                     NewStatus = postRunServiceStatus.LiveEvents[i].Status,
                     OldStatus = preRunServiceStatus.LiveEvents[i].Status
-                };
-
-                liveEventDiff.Add(diff);
+                });
             }
 
             return new StatusChangeOutputModel

@@ -2,6 +2,7 @@
 using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.models.input;
 using LiteralLifeChurch.LiveStreamingApi.models.output;
+using LiteralLifeChurch.LiveStreamingApi.models.workflow;
 using LiteralLifeChurch.LiveStreamingApi.services.common;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
@@ -30,30 +31,26 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
         {
             SentrySdk.AddBreadcrumb(message: "Beginning start procedure", category: "start", level: BreadcrumbLevel.Info);
 
-            StatusOutputModel preRunServiceStatus = await GetPreRunServiceStatus(input);
+            StatusOutputModel preRunServiceStatus = await GetServiceStatus(input);
             await StartStreamingEndpoint(preRunServiceStatus, input);
 
             SentrySdk.AddBreadcrumb(message: $"Starting {input.LiveEvents.Count} event(s)", category: "start", level: BreadcrumbLevel.Info);
 
             foreach (string liveEventName in input.LiveEvents)
             {
-                string assetName = $"LiveStreamingApi-Asset-{liveEventName}-{Guid.NewGuid()}";
-                string manifestName = "manifest";
-                string liveOutputName = $"LiveStreamingApi-LiveOutput-{liveEventName}-{Guid.NewGuid()}";
-                string streamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEventName}-{Guid.NewGuid()}";
-
                 if (!IsLiveEventStopped(preRunServiceStatus, liveEventName))
                 {
                     continue;
                 }
 
-                Asset asset = await CreateAsset(assetName);
-                await CreateLiveOutput(asset, liveEventName, liveOutputName, manifestName);
-                await CreateStreamingLocator(asset, streamingLocatorName);
+                ResourceNamesModel resources = GenerateResourceNames(liveEventName);
+                Asset asset = await CreateAsset(resources.AssetName);
+                await CreateLiveOutput(asset, liveEventName, resources.LiveOutputName, resources.ManifestName);
+                await CreateStreamingLocator(asset, resources.StreamingLocatorName);
                 await StartLiveEvent(liveEventName);
             }
 
-            StatusOutputModel postRunServiceStatus = await GetPostRunServiceStatus(input);
+            StatusOutputModel postRunServiceStatus = await GetServiceStatus(input);
             return GenerateStatusChange(preRunServiceStatus, postRunServiceStatus);
         }
 
@@ -108,6 +105,17 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
             SentrySdk.AddBreadcrumb(message: "Created the streaming locator", category: "start", level: BreadcrumbLevel.Info);
         }
 
+        private static ResourceNamesModel GenerateResourceNames(string liveEventName)
+        {
+            return new ResourceNamesModel
+            {
+                AssetName = $"LiveStreamingApi-Asset-{liveEventName}-{Guid.NewGuid()}",
+                LiveOutputName = $"LiveStreamingApi-LiveOutput-{liveEventName}-{Guid.NewGuid()}",
+                ManifestName = "manifest",
+                StreamingLocatorName = $"LiveStreamingApi-StreamingLocator-{liveEventName}-{Guid.NewGuid()}"
+            };
+        }
+
         private static StatusChangeOutputModel GenerateStatusChange(StatusOutputModel preRunServiceStatus, StatusOutputModel postRunServiceStatus)
         {
             List<StatusChangeOutputModel.Diff.Resource> liveEventDiff = new List<StatusChangeOutputModel.Diff.Resource>();
@@ -140,21 +148,14 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
             };
         }
 
-        private async Task<StatusOutputModel> GetPostRunServiceStatus(InputRequestModel input)
+        private async Task<StatusOutputModel> GetServiceStatus(InputRequestModel input)
         {
             StatusOutputModel status = await StatusService.GetStatusAsync(input);
-            SentrySdk.AddBreadcrumb(message: "Got post-run service status", category: "start", level: BreadcrumbLevel.Info);
+            SentrySdk.AddBreadcrumb(message: "Got service status", category: "start", level: BreadcrumbLevel.Info);
             return status;
         }
 
-        private async Task<StatusOutputModel> GetPreRunServiceStatus(InputRequestModel input)
-        {
-            StatusOutputModel status = await StatusService.GetStatusAsync(input);
-            SentrySdk.AddBreadcrumb(message: "Got pre-run service status", category: "start", level: BreadcrumbLevel.Info);
-            return status;
-        }
-
-        private bool IsLiveEventStopped(StatusOutputModel preRunServiceStatus, string liveEventName)
+        private static bool IsLiveEventStopped(StatusOutputModel preRunServiceStatus, string liveEventName)
         {
             StatusOutputModel.Resource liveEvent = preRunServiceStatus
                     .LiveEvents

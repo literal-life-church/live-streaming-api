@@ -2,7 +2,7 @@
 
 namespace LiteralLifeChurch.LiveStreamingApi.models.input
 {
-    public class LocatorsInputModel
+    public class LocatorsInputModel : IInputModel
     {
         public List<string> LiveEvents { get; set; }
 

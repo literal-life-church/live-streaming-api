@@ -6,8 +6,6 @@ using LiteralLifeChurch.LiveStreamingApi.models.workflow;
 using LiteralLifeChurch.LiveStreamingApi.services.common;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
-using Sentry;
-using Sentry.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -29,12 +27,12 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
 
         public async Task<StatusChangeOutputModel> StartServicesAsync(InputRequestModel input)
         {
-            SentrySdk.AddBreadcrumb(message: "Beginning start procedure", category: "start", level: BreadcrumbLevel.Info);
+            LoggerService.Info("Beginning start procedure", LoggerService.Start);
 
             StatusOutputModel preRunServiceStatus = await GetServiceStatus(input);
             await StartStreamingEndpoint(preRunServiceStatus, input);
 
-            SentrySdk.AddBreadcrumb(message: $"Starting {input.LiveEvents.Count} event(s)", category: "start", level: BreadcrumbLevel.Info);
+            LoggerService.Info($"Starting {input.LiveEvents.Count} event(s)", LoggerService.Start);
 
             foreach (string liveEventName in input.LiveEvents)
             {
@@ -65,7 +63,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                 parameters: new Asset()
             );
 
-            SentrySdk.AddBreadcrumb(message: "Created the asset", category: "start", level: BreadcrumbLevel.Info);
+            LoggerService.Info("Created the asset", LoggerService.Start);
             return asset;
         }
 
@@ -85,7 +83,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                 parameters: liveOutput
             );
 
-            SentrySdk.AddBreadcrumb(message: "Created the live output", category: "start", level: BreadcrumbLevel.Info);
+            LoggerService.Info("Created the live output", LoggerService.Start);
         }
 
         private async Task CreateStreamingLocator(Asset asset, string streamingLocatorName)
@@ -102,7 +100,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                 parameters: locator
             );
 
-            SentrySdk.AddBreadcrumb(message: "Created the streaming locator", category: "start", level: BreadcrumbLevel.Info);
+            LoggerService.Info("Created the streaming locator", LoggerService.Start);
         }
 
         private static ResourceNamesModel GenerateResourceNames(string liveEventName)
@@ -149,7 +147,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
         private async Task<StatusOutputModel> GetServiceStatus(InputRequestModel input)
         {
             StatusOutputModel status = await StatusService.GetStatusAsync(input);
-            SentrySdk.AddBreadcrumb(message: "Got service status", category: "start", level: BreadcrumbLevel.Info);
+            LoggerService.Info("Got service status", LoggerService.Start);
             return status;
         }
 
@@ -161,12 +159,12 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
 
             if (liveEvent.Status != ResourceStatusEnum.Stopped)
             {
-                SentrySdk.AddBreadcrumb(message: "Did not start the live event", category: "start", level: BreadcrumbLevel.Info);
+                LoggerService.Warn("Did not start the live event", LoggerService.Start);
                 return false;
             }
             else
             {
-                SentrySdk.AddBreadcrumb(message: "Starting the live event", category: "start", level: BreadcrumbLevel.Info);
+                LoggerService.Info("Starting the live event", LoggerService.Start);
                 return true;
             }
         }
@@ -179,7 +177,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                 liveEventName: liveEventName
             );
 
-            SentrySdk.AddBreadcrumb(message: "Started the event", category: "start", level: BreadcrumbLevel.Info);
+            LoggerService.Info("Started the event", LoggerService.Start);
         }
 
         private async Task StartStreamingEndpoint(StatusOutputModel preRunServiceStatus, InputRequestModel input)
@@ -192,11 +190,11 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                     streamingEndpointName: input.StreamingEndpoint
                 );
 
-                SentrySdk.AddBreadcrumb(message: "Started streaming endpoint", category: "start", level: BreadcrumbLevel.Info);
+                LoggerService.Info("Started streaming endpoint", LoggerService.Start);
             }
             else
             {
-                SentrySdk.AddBreadcrumb(message: "Did not need to start streaming endpoint", category: "start", level: BreadcrumbLevel.Warning);
+                LoggerService.Warn("Did not need to start streaming endpoint", LoggerService.Start);
             }
         }
 

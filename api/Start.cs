@@ -12,7 +12,6 @@ using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Sentry;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -32,7 +31,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "start")] HttpRequest req,
             ILogger log)
         {
-            using (SentrySdk.Init())
+            using (LoggerService.Init(log))
             {
                 ConfigurationModel config = configService.GetConfiguration();
 
@@ -62,7 +61,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
         private static async Task<HttpResponseMessage> ReportError(ConfigurationModel config, Exception exception)
         {
-            SentrySdk.CaptureException(exception);
+            LoggerService.CaptureException(exception);
             await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
             return errorResponseService.CreateResponse(exception);
         }

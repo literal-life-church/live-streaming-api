@@ -1,6 +1,5 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
-using Sentry;
-using Sentry.Protocol;
+using LiteralLifeChurch.LiveStreamingApi.services.common;
 using System;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services
@@ -35,7 +34,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
                 WebhookStopSuccess = new Uri(Environment.GetEnvironmentVariable(WebhookStopSuccess))
             };
 
-            SentrySdk.AddBreadcrumb(message: "Extracted configuration", category: "bootstrapping", level: BreadcrumbLevel.Info);
+            LoggerService.Info("Extracted configuration", LoggerService.Bootstrapping);
             return model;
         }
     }

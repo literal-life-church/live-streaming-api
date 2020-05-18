@@ -29,27 +29,36 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "status")] HttpRequest req,
             ILogger log)
         {
-            try
+            using (LoggerService.Init(log))
             {
-                AzureMediaServicesClient client = await authService.GetClientAsync();
-                ConfigurationModel config = configService.GetConfiguration();
+                try
+                {
+                    AzureMediaServicesClient client = await authService.GetClientAsync();
+                    ConfigurationModel config = configService.GetConfiguration();
 
-                InputRequestService inputRequestService = new InputRequestService(client, config);
-                StatusController statusController = new StatusController(client, config);
+                    InputRequestService inputRequestService = new InputRequestService(client, config);
+                    StatusController statusController = new StatusController(client, config);
 
-                InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
-                StatusOutputModel outputModel = await statusController.GetStatusAsync(inputModel);
+                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
+                    StatusOutputModel outputModel = await statusController.GetStatusAsync(inputModel);
 
-                return successResponseService.CreateResponse(outputModel);
+                    return successResponseService.CreateResponse(outputModel);
+                }
+                catch (AppException e)
+                {
+                    return ReportError(e);
+                }
+                catch (Exception e)
+                {
+                    return ReportError(e);
+                }
             }
-            catch (AppException e)
-            {
-                return errorResponseService.CreateResponse(e);
-            }
-            catch (Exception e)
-            {
-                return errorResponseService.CreateResponse(e);
-            }
+        }
+
+        private static HttpResponseMessage ReportError(Exception exception)
+        {
+            LoggerService.CaptureException(exception);
+            return errorResponseService.CreateResponse(exception);
         }
     }
 }

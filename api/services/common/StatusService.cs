@@ -59,7 +59,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             List<StatusOutputModel.Resource> mappedEvents = filteredEvents
                 .Select(liveEvent =>
                 {
-                    return new StatusOutputModel.Resource()
+                    return new StatusOutputModel.Resource
                     {
                         Name = liveEvent.Name,
                         Status = MapEventStatusToOurStatus(liveEvent.ResourceState)
@@ -67,7 +67,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
                 })
                 .ToList();
 
-            return new StatusOutputModel()
+            return new StatusOutputModel
             {
                 LiveEvents = mappedEvents,
                 StreamingEndpoint = mappedEndpoint,

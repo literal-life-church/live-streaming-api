@@ -1,10 +1,9 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.services.common;
 using Microsoft.Azure.Management.Media;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using Microsoft.Rest.Azure.Authentication;
-using Sentry;
-using Sentry.Protocol;
 using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services
@@ -25,7 +24,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
                 SubscriptionId = config.SubscriptionId,
             };
 
-            SentrySdk.AddBreadcrumb(message: "Created authorization client", category: "bootstrapping", level: BreadcrumbLevel.Info);
+            LoggerService.Info("Created authorization client", LoggerService.Bootstrapping);
             return client;
         }
     }

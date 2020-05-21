@@ -11,6 +11,8 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 
         public static readonly string Bootstrapping = "bootstrapping";
         public static readonly string Start = "start";
+        public static readonly string Status = "start";
+        public static readonly string Stop = "stop";
         public static readonly string Validation = "validation";
         public static readonly string Webhook = "webhook";
 
@@ -28,6 +30,12 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
         {
             SentrySdk.CaptureException(e);
             Logger.LogCritical(e.Message);
+        }
+
+        public static void Error(string message, string category)
+        {
+            SentrySdk.AddBreadcrumb(message, category, level: BreadcrumbLevel.Error);
+            Logger.LogError(message);
         }
 
         public static void Info(string message, string category)

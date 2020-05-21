@@ -29,10 +29,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
         {
             LoggerService.Info("Beginning start procedure", LoggerService.Start);
 
-            StatusOutputModel preRunServiceStatus = await GetServiceStatus(input);
-            await StartStreamingEndpoint(preRunServiceStatus, input);
+            StatusOutputModel preRunServiceStatus = await GetServiceStatusAsync(input);
+            await StartStreamingEndpointAsync(preRunServiceStatus, input.StreamingEndpoint);
 
-            LoggerService.Info($"Starting {input.LiveEvents.Count} event(s)", LoggerService.Start);
+            LoggerService.Info($"Starting {input.LiveEvents.Count} live event(s)", LoggerService.Start);
 
             foreach (string liveEventName in input.LiveEvents)
             {
@@ -42,19 +42,19 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                 }
 
                 ResourceNamesModel resources = GenerateResourceNames(liveEventName);
-                Asset asset = await CreateAsset(resources.AssetName);
-                await CreateLiveOutput(asset, liveEventName, resources.LiveOutputName, resources.ManifestName);
-                await CreateStreamingLocator(asset, resources.StreamingLocatorName);
-                await StartLiveEvent(liveEventName);
+                Asset asset = await CreateAssetAsync(resources.AssetName);
+                await CreateLiveOutputAsync(asset, liveEventName, resources.LiveOutputName, resources.ManifestName);
+                await CreateStreamingLocatorAsync(asset, resources.StreamingLocatorName);
+                await StartLiveEventAsync(liveEventName);
             }
 
-            StatusOutputModel postRunServiceStatus = await GetServiceStatus(input);
+            StatusOutputModel postRunServiceStatus = await GetServiceStatusAsync(input);
             return GenerateStatusChange(preRunServiceStatus, postRunServiceStatus);
         }
 
         // region Workflow
 
-        private async Task<Asset> CreateAsset(string assetName)
+        private async Task<Asset> CreateAssetAsync(string assetName)
         {
             Asset asset = await Client.Assets.CreateOrUpdateAsync(
                 resourceGroupName: Config.ResourceGroup,
@@ -67,7 +67,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
             return asset;
         }
 
-        private async Task CreateLiveOutput(Asset asset, string liveEventName, string liveOutputName, string manifestName)
+        private async Task CreateLiveOutputAsync(Asset asset, string liveEventName, string liveOutputName, string manifestName)
         {
             LiveOutput liveOutput = new LiveOutput(
                 assetName: asset.Name,
@@ -86,7 +86,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
             LoggerService.Info("Created the live output", LoggerService.Start);
         }
 
-        private async Task CreateStreamingLocator(Asset asset, string streamingLocatorName)
+        private async Task CreateStreamingLocatorAsync(Asset asset, string streamingLocatorName)
         {
             StreamingLocator locator = new StreamingLocator(
                 assetName: asset.Name,
@@ -144,7 +144,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
             };
         }
 
-        private async Task<StatusOutputModel> GetServiceStatus(InputRequestModel input)
+        private async Task<StatusOutputModel> GetServiceStatusAsync(InputRequestModel input)
         {
             StatusOutputModel status = await StatusService.GetStatusAsync(input);
             LoggerService.Info("Got service status", LoggerService.Start);
@@ -169,7 +169,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
             }
         }
 
-        private async Task StartLiveEvent(string liveEventName)
+        private async Task StartLiveEventAsync(string liveEventName)
         {
             await Client.LiveEvents.StartAsync(
                 resourceGroupName: Config.ResourceGroup,
@@ -177,17 +177,17 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                 liveEventName: liveEventName
             );
 
-            LoggerService.Info("Started the event", LoggerService.Start);
+            LoggerService.Info("Started the live event", LoggerService.Start);
         }
 
-        private async Task StartStreamingEndpoint(StatusOutputModel preRunServiceStatus, InputRequestModel input)
+        private async Task StartStreamingEndpointAsync(StatusOutputModel preRunServiceStatus, string endpointName)
         {
             if (preRunServiceStatus.StreamingEndpoint.Status == ResourceStatusEnum.Stopped)
             {
                 await Client.StreamingEndpoints.StartAsync(
                     resourceGroupName: Config.ResourceGroup,
                     accountName: Config.AccountName,
-                    streamingEndpointName: input.StreamingEndpoint
+                    streamingEndpointName: endpointName
                 );
 
                 LoggerService.Info("Started streaming endpoint", LoggerService.Start);

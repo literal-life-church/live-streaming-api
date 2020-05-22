@@ -36,7 +36,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
 
             if (!hasTargetEndpoint)
             {
-                throw new ServiceValidationException()
+                throw new ServiceValidationException
                 {
                     DeveloperMessage = "The query parameter 'endpoint' does not match the name of any existing streaming endpoints",
                     Message = "The given streaming endpoint does not exist"
@@ -72,7 +72,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
                     nonExistentEvents = string.Join(", ", givenLiveEvents);
                 }
 
-                throw new ServiceValidationException()
+                throw new ServiceValidationException
                 {
                     DeveloperMessage = string.Format("The following live event(s) in the query parameter 'events' does not match the name(s) of any the existing live events: {0}", nonExistentEvents),
                     Message = string.Format("The following live event(s) do not exist: {0}", nonExistentEvents)

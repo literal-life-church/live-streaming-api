@@ -6,9 +6,9 @@ using System.Text;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services.responses
 {
-    class SuccessResponseService<Output> : IResponseService where Output : IOutputModel
+    public static class SuccessResponseService
     {
-        public HttpResponseMessage CreateResponse(Output response, HttpStatusCode statusCode = HttpStatusCode.OK)
+        public static HttpResponseMessage CreateResponse<Output>(Output response, HttpStatusCode statusCode = HttpStatusCode.OK) where Output : IOutputModel
         {
             string serializedJson = JsonConvert.SerializeObject(response);
 

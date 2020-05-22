@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services.validators
 {
-    public class InputValidator : IValidatorService
+    public static class InputValidator
     {
-        private const string EndpointQuery = "endpoint";
-        private const string EventsQuery = "events";
+        private static readonly string EndpointQuery = "endpoint";
+        private static readonly string EventsQuery = "events";
 
-        public void Validate(HttpRequest request)
+        public static void Validate(HttpRequest request)
         {
             bool hasEndpoint = request.Query.ContainsKey(EndpointQuery) && !string.IsNullOrEmpty(request.Query[EndpointQuery].ToString().Trim());
             bool hasEvents = request.Query.ContainsKey(EventsQuery) && !string.IsNullOrEmpty(request.Query[EventsQuery].ToString().Trim()) && request.Query[EventsQuery]
@@ -21,7 +21,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
 
             if (!hasEndpoint && !hasEvents)
             {
-                throw new InputValidationException()
+                throw new InputValidationException
                 {
                     DeveloperMessage = "The query parameter 'endpoint' is required and must be the name of an existing streaming endpoint, and another query parameter 'events' is also required and must be a comma-separated list of names of existing live events",
                     Message = "Input requires the name of a streaming endpoint and the name of one or more live events"
@@ -29,7 +29,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
             }
             else if (!hasEndpoint)
             {
-                throw new InputValidationException()
+                throw new InputValidationException
                 {
                     DeveloperMessage = "The query parameter 'endpoint' is required and must be the name of an existing streaming endpoint",
                     Message = "Input requires the name of a streaming endpoint"
@@ -37,7 +37,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.validators
             }
             else if (!hasEvents)
             {
-                throw new InputValidationException()
+                throw new InputValidationException
                 {
                     DeveloperMessage = "The query parameter 'events' is required and must be a comma-separated list of names of existing live events",
                     Message = "Input requires the name of one or more live events"

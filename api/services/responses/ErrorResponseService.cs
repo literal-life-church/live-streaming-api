@@ -8,9 +8,9 @@ using System.Text;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services.responses
 {
-    public class ErrorResponseService : IResponseService
+    public static class ErrorResponseService
     {
-        public HttpResponseMessage CreateResponse(Exception error)
+        public static HttpResponseMessage CreateResponse(Exception error)
         {
             ErrorModel model;
 
@@ -18,7 +18,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.responses
             {
                 AppException appException = error as AppException;
 
-                model = new ErrorModel()
+                model = new ErrorModel
                 {
                     DeveloperMessage = appException.DeveloperMessage,
                     Message = appException.Message,
@@ -28,7 +28,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.responses
             }
             else
             {
-                model = new ErrorModel()
+                model = new ErrorModel
                 {
                     DeveloperMessage = error.Message,
                     Message = error.Message,

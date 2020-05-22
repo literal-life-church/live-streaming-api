@@ -21,7 +21,6 @@ namespace LiteralLifeChurch.LiveStreamingApi
 {
     public static class Start
     {
-        private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
         private static readonly SuccessResponseService<StatusChangeOutputModel> successResponseService = new SuccessResponseService<StatusChangeOutputModel>();
@@ -37,7 +36,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
                 try
                 {
-                    AzureMediaServicesClient client = await authService.GetClientAsync(config);
+                    AzureMediaServicesClient client = await AuthenticationService.GetClientAsync(config);
 
                     InputRequestService inputRequestService = new InputRequestService(client, config);
                     StartController startController = new StartController(client, config);

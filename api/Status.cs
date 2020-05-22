@@ -19,7 +19,6 @@ namespace LiteralLifeChurch.LiveStreamingApi
 {
     public static class Status
     {
-        private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
         private static readonly SuccessResponseService<StatusOutputModel> successResponseService = new SuccessResponseService<StatusOutputModel>();
@@ -34,7 +33,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 try
                 {
                     ConfigurationModel config = configService.GetConfiguration();
-                    AzureMediaServicesClient client = await authService.GetClientAsync(config);
+                    AzureMediaServicesClient client = await AuthenticationService.GetClientAsync(config);
 
                     InputRequestService inputRequestService = new InputRequestService(client, config);
                     StatusController statusController = new StatusController(client, config);

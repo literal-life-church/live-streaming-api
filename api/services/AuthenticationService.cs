@@ -10,9 +10,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
 {
     public class AuthenticationService
     {
-        private readonly ConfigurationService configService = new ConfigurationService();
-
-        public async Task<AzureMediaServicesClient> GetClientAsync(ConfigurationModel config)
+        public static async Task<AzureMediaServicesClient> GetClientAsync(ConfigurationModel config)
         {
             ClientCredential clientCredentials = new ClientCredential(config.ClientId, config.ClientSecret);
             ServiceClientCredentials appCredentials = await ApplicationTokenProvider.LoginSilentAsync(config.TenantId, clientCredentials, ActiveDirectoryServiceSettings.Azure);

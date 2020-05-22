@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services
 {
-    public class AuthenticationService
+    public static class AuthenticationService
     {
         public static async Task<AzureMediaServicesClient> GetClientAsync(ConfigurationModel config)
         {

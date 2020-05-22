@@ -72,7 +72,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
             LiveOutput liveOutput = new LiveOutput(
                 assetName: asset.Name,
                 manifestName: manifestName,
-                archiveWindowLength: TimeSpan.FromMinutes(10)
+                archiveWindowLength: TimeSpan.FromMinutes(Config.ArchiveWindowLength)
             );
 
             await Client.LiveOutputs.CreateAsync(

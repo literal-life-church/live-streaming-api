@@ -23,7 +23,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 
         public async Task<InputRequestModel> GetInputRequestModelAsync(HttpRequest request)
         {
+            LoggerService.Info("Beginning validation", LoggerService.Validation);
             InputValidator.Validate(request);
+
+            LoggerService.Info("Passed local validation", LoggerService.Validation);
 
             InputRequestModel model = new InputRequestModel()
             {
@@ -40,6 +43,8 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             };
 
             await ServiceValidator.ValidateAsync(model);
+            LoggerService.Info("Passed remote validation", LoggerService.Validation);
+
             return model;
         }
     }

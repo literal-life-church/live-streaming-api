@@ -17,6 +17,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
         {
             if (uri == null)
             {
+                LoggerService.Warn("No URI for webhook call", LoggerService.Webhook);
                 return;
             }
 
@@ -33,6 +34,11 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
                     DeveloperMessage = "A call to the provided webhook returned a response other than 200 - 299",
                     Message = "Unable to make a call out to the provided webhook"
                 };
+            }
+            else
+            {
+                string message = string.Format("Called webhook for action {0}, and status {1}", action, status);
+                LoggerService.Info(message, LoggerService.Webhook);
             }
         }
 

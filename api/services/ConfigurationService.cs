@@ -1,9 +1,10 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.services.common;
 using System;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services
 {
-    class ConfigurationService
+    public class ConfigurationService
     {
         private static readonly string AccountName = "LIVE_STREAMING_API_ACCOUNT_NAME";
         private static readonly string ClientIdName = "LIVE_STREAMING_API_CLIENT_ID";
@@ -18,7 +19,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
 
         public ConfigurationModel GetConfiguration()
         {
-            return new ConfigurationModel()
+            ConfigurationModel model = new ConfigurationModel
             {
                 AccountName = Environment.GetEnvironmentVariable(AccountName),
                 ClientId = Environment.GetEnvironmentVariable(ClientIdName),
@@ -32,6 +33,9 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
                 WebhookStopFailure = new Uri(Environment.GetEnvironmentVariable(WebhookStopFailure)),
                 WebhookStopSuccess = new Uri(Environment.GetEnvironmentVariable(WebhookStopSuccess))
             };
+
+            LoggerService.Info("Extracted configuration", LoggerService.Bootstrapping);
+            return model;
         }
     }
 }

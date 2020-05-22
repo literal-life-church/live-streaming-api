@@ -32,42 +32,15 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 
         public async Task<StatusOutputModel> GetStatusAsync(InputRequestModel input)
         {
-            // Get the Streaming Endpoint
-            StreamingEndpoint endpoint = await Client.StreamingEndpoints.GetAsync(
-                resourceGroupName: Config.ResourceGroup,
-                accountName: Config.AccountName,
-                streamingEndpointName: input.StreamingEndpoint
-            );
+            LoggerService.Info("Beginning the status procedure", LoggerService.Status);
 
-            // Get all of the Live Events, then filter them
-            IPage<LiveEvent> eventsPage = await Client.LiveEvents.ListAsync(
-                resourceGroupName: Config.ResourceGroup,
-                accountName: Config.AccountName
-            );
+            StreamingEndpoint endpoint = await GetStreamingEndpointAsync(input.StreamingEndpoint);
+            List<LiveEvent> liveEvents = await GetLiveEventsAsync(input.LiveEvents);
 
-            List<LiveEvent> filteredEvents = eventsPage
-                .Where(liveEvent => input.LiveEvents.Contains(liveEvent.Name))
-                .ToList();
+            StatusOutputModel.Resource mappedEndpoint = MapStreamingResourceToOurResource(endpoint);
+            List<StatusOutputModel.Resource> mappedEvents = MapLiveEventResourceToOurResource(liveEvents);
 
-            // Summarize our findings
-            StatusOutputModel.Resource mappedEndpoint = new StatusOutputModel.Resource()
-            {
-                Name = endpoint.Name,
-                Status = MapStreamingStatusToOurStatus(endpoint.ResourceState)
-            };
-
-            List<StatusOutputModel.Resource> mappedEvents = filteredEvents
-                .Select(liveEvent =>
-                {
-                    return new StatusOutputModel.Resource()
-                    {
-                        Name = liveEvent.Name,
-                        Status = MapEventStatusToOurStatus(liveEvent.ResourceState)
-                    };
-                })
-                .ToList();
-
-            return new StatusOutputModel()
+            return new StatusOutputModel
             {
                 LiveEvents = mappedEvents,
                 StreamingEndpoint = mappedEndpoint,
@@ -75,7 +48,9 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             };
         }
 
-        private ResourceStatusEnum DetermineSummary(StatusOutputModel.Resource endpoint, List<StatusOutputModel.Resource> events)
+        // region Workflow
+
+        private static ResourceStatusEnum DetermineSummary(StatusOutputModel.Resource endpoint, List<StatusOutputModel.Resource> events)
         {
             if (endpoint.Status == error || events.Any(liveEvent => liveEvent.Status == error))
             {
@@ -107,78 +82,139 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             }
             else
             {
+                LoggerService.Error("Encountered an unknown summary state", LoggerService.Status);
                 return error;
             }
         }
 
-        private ResourceStatusEnum MapEventStatusToOurStatus(LiveEventResourceState? state)
+        private async Task<List<LiveEvent>> GetLiveEventsAsync(List<string> liveEventNames)
         {
-            if (!state.HasValue)
-            {
-                return error;
-            }
+            IPage<LiveEvent> eventsPage = await Client.LiveEvents.ListAsync(
+                resourceGroupName: Config.ResourceGroup,
+                accountName: Config.AccountName
+            );
 
-            if (state.Value == LiveEventResourceState.Deleting)
+            List<LiveEvent> events = eventsPage
+                .Where(liveEvent => liveEventNames.Contains(liveEvent.Name))
+                .ToList();
+
+            LoggerService.Info("Got the live events", LoggerService.Status);
+            return events;
+        }
+
+        private async Task<StreamingEndpoint> GetStreamingEndpointAsync(string streamingEndpoint)
+        {
+            StreamingEndpoint endpoint = await Client.StreamingEndpoints.GetAsync(
+                resourceGroupName: Config.ResourceGroup,
+                accountName: Config.AccountName,
+                streamingEndpointName: streamingEndpoint
+            );
+
+            LoggerService.Info("Got the streaming endpoint", LoggerService.Status);
+            return endpoint;
+        }
+
+        private static List<StatusOutputModel.Resource> MapLiveEventResourceToOurResource(List<LiveEvent> liveEvents)
+        {
+            LoggerService.Info($"Mapping {liveEvents.Count} live event(s)", LoggerService.Status);
+
+            List<StatusOutputModel.Resource> mappedLiveEvents = liveEvents
+                .Select(liveEvent =>
+                {
+                    ResourceStatusEnum status;
+
+                    if (!liveEvent.ResourceState.HasValue)
+                    {
+                        LoggerService.Error($"Azure did not report a status for the live event '{liveEvent.Name}'", LoggerService.Status);
+                        status = error;
+                    }
+                    else if (liveEvent.ResourceState.Value == LiveEventResourceState.Deleting)
+                    {
+                        status = deleting;
+                    }
+                    else if (liveEvent.ResourceState.Value == LiveEventResourceState.Running)
+                    {
+                        status = running;
+                    }
+                    else if (liveEvent.ResourceState.Value == LiveEventResourceState.Starting)
+                    {
+                        status = starting;
+                    }
+                    else if (liveEvent.ResourceState.Value == LiveEventResourceState.Stopped)
+                    {
+                        status = stopped;
+                    }
+                    else if (liveEvent.ResourceState.Value == LiveEventResourceState.Stopping)
+                    {
+                        status = stopping;
+                    }
+                    else
+                    {
+                        LoggerService.Error($"Encountered an unknown state for the live event '{liveEvent.Name}'", LoggerService.Status);
+                        status = error;
+                    }
+
+                    return new StatusOutputModel.Resource
+                    {
+                        Name = liveEvent.Name,
+                        Status = status
+                    };
+                })
+                .ToList();
+
+            LoggerService.Info("Mapped the live event(s)", LoggerService.Status);
+            return mappedLiveEvents;
+        }
+
+        private static StatusOutputModel.Resource MapStreamingResourceToOurResource(StreamingEndpoint endpoint)
+        {
+            ResourceStatusEnum status;
+
+            if (!endpoint.ResourceState.HasValue)
             {
-                return deleting;
+                LoggerService.Error($"Azure did not report a status for the streaming endpoint '{endpoint.Name}'", LoggerService.Status);
+                status = error;
             }
-            else if (state.Value == LiveEventResourceState.Running)
+            else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Deleting)
             {
-                return running;
+                status = deleting;
             }
-            else if (state.Value == LiveEventResourceState.Starting)
+            else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Running)
             {
-                return starting;
+                status = running;
             }
-            else if (state.Value == LiveEventResourceState.Stopped)
+            else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Scaling)
             {
-                return stopped;
+                status = scaling;
             }
-            else if (state.Value == LiveEventResourceState.Stopping)
+            else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Starting)
             {
-                return stopping;
+                status = starting;
+            }
+            else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Stopped)
+            {
+                status = stopped;
+            }
+            else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Stopping)
+            {
+                status = stopping;
             }
             else
             {
-                return error;
-            }
-        }
-
-        private ResourceStatusEnum MapStreamingStatusToOurStatus(StreamingEndpointResourceState? state)
-        {
-            if (!state.HasValue)
-            {
-                return error;
+                LoggerService.Error($"Encountered an unknown state for the streaming endpoint '{endpoint.Name}'", LoggerService.Status);
+                status = error;
             }
 
-            if (state.Value == StreamingEndpointResourceState.Deleting)
+            StatusOutputModel.Resource mappedStreamingEndpoint = new StatusOutputModel.Resource
             {
-                return deleting;
-            }
-            else if (state.Value == StreamingEndpointResourceState.Running)
-            {
-                return running;
-            }
-            else if (state.Value == StreamingEndpointResourceState.Scaling)
-            {
-                return scaling;
-            }
-            else if (state.Value == StreamingEndpointResourceState.Starting)
-            {
-                return starting;
-            }
-            else if (state.Value == StreamingEndpointResourceState.Stopped)
-            {
-                return stopped;
-            }
-            else if (state.Value == StreamingEndpointResourceState.Stopping)
-            {
-                return stopping;
-            }
-            else
-            {
-                return error;
-            }
+                Name = endpoint.Name,
+                Status = status
+            };
+
+            LoggerService.Info($"Mapped the streaming endpoint", LoggerService.Status);
+            return mappedStreamingEndpoint;
         }
+
+        // endregion
     }
 }

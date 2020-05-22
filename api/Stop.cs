@@ -20,7 +20,6 @@ namespace LiteralLifeChurch.LiveStreamingApi
 {
     public static class Stop
     {
-        private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
         private static readonly SuccessResponseService<StatusChangeOutputModel> successResponseService = new SuccessResponseService<StatusChangeOutputModel>();
@@ -30,31 +29,39 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "stop")] HttpRequest req,
             ILogger log)
         {
-            ConfigurationModel config = configService.GetConfiguration();
-
-            try
+            using (LoggerService.Init(log))
             {
-                AzureMediaServicesClient client = await authService.GetClientAsync();
+                ConfigurationModel config = configService.GetConfiguration();
 
-                InputRequestService inputRequestService = new InputRequestService(client, config);
-                StopController stopController = new StopController(client, config);
+                try
+                {
+                    AzureMediaServicesClient client = await AuthenticationService.GetClientAsync(config);
 
-                InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
-                StatusChangeOutputModel outputModel = await stopController.StopServicesAsync(inputModel);
+                    InputRequestService inputRequestService = new InputRequestService(client, config);
+                    StopController stopController = new StopController(client, config);
 
-                await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Stop, outputModel.Status.Summary);
-                return successResponseService.CreateResponse(outputModel);
+                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
+                    StatusChangeOutputModel outputModel = await stopController.StopServicesAsync(inputModel);
+
+                    await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Stop, outputModel.Status.Summary);
+                    return successResponseService.CreateResponse(outputModel);
+                }
+                catch (AppException e)
+                {
+                    return await ReportErrorAsync(config, e);
+                }
+                catch (Exception e)
+                {
+                    return await ReportErrorAsync(config, e);
+                }
             }
-            catch (AppException e)
-            {
-                await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Stop, ResourceStatusEnum.Error);
-                return errorResponseService.CreateResponse(e);
-            }
-            catch (Exception e)
-            {
-                await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Stop, ResourceStatusEnum.Error);
-                return errorResponseService.CreateResponse(e);
-            }
+        }
+
+        private static async Task<HttpResponseMessage> ReportErrorAsync(ConfigurationModel config, Exception exception)
+        {
+            LoggerService.CaptureException(exception);
+            await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
+            return errorResponseService.CreateResponse(exception);
         }
     }
 }

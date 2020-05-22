@@ -19,7 +19,6 @@ namespace LiteralLifeChurch.LiveStreamingApi
 {
     public static class Locators
     {
-        private static readonly AuthenticationService authService = new AuthenticationService();
         private static readonly ConfigurationService configService = new ConfigurationService();
         private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
         private static readonly SuccessResponseService<LocatorsOutputModel> successResponseService = new SuccessResponseService<LocatorsOutputModel>();
@@ -29,27 +28,36 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "locators")] HttpRequest req,
             ILogger log)
         {
-            try
+            using (LoggerService.Init(log))
             {
-                AzureMediaServicesClient client = await authService.GetClientAsync();
-                ConfigurationModel config = configService.GetConfiguration();
+                try
+                {
+                    ConfigurationModel config = configService.GetConfiguration();
+                    AzureMediaServicesClient client = await AuthenticationService.GetClientAsync(config);
 
-                InputRequestService inputRequestService = new InputRequestService(client, config);
-                LocatorsController locatorsController = new LocatorsController(client, config);
+                    InputRequestService inputRequestService = new InputRequestService(client, config);
+                    LocatorsController locatorsController = new LocatorsController(client, config);
 
-                InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
-                LocatorsOutputModel outputModel = await locatorsController.GetLocatorsAsync(inputModel);
+                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
+                    LocatorsOutputModel outputModel = await locatorsController.GetLocatorsAsync(inputModel);
 
-                return successResponseService.CreateResponse(outputModel);
+                    return successResponseService.CreateResponse(outputModel);
+                }
+                catch (AppException e)
+                {
+                    return ReportError(e);
+                }
+                catch (Exception e)
+                {
+                    return ReportError(e);
+                }
             }
-            catch (AppException e)
-            {
-                return errorResponseService.CreateResponse(e);
-            }
-            catch (Exception e)
-            {
-                return errorResponseService.CreateResponse(e);
-            }
+        }
+
+        private static HttpResponseMessage ReportError(Exception exception)
+        {
+            LoggerService.CaptureException(exception);
+            return errorResponseService.CreateResponse(exception);
         }
     }
 }

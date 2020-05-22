@@ -36,7 +36,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
                 try
                 {
-                    AzureMediaServicesClient client = await authService.GetClientAsync();
+                    AzureMediaServicesClient client = await authService.GetClientAsync(config);
 
                     InputRequestService inputRequestService = new InputRequestService(client, config);
                     StopController stopController = new StopController(client, config);

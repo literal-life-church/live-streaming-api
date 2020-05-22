@@ -32,10 +32,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 
         public async Task<StatusOutputModel> GetStatusAsync(InputRequestModel input)
         {
-            LoggerService.Info("Beginning status procedure", LoggerService.Status);
+            LoggerService.Info("Beginning the status procedure", LoggerService.Status);
 
-            StreamingEndpoint endpoint = await GetStreamingEndpoint(input.StreamingEndpoint);
-            List<LiveEvent> liveEvents = await GetLiveEvents(input.LiveEvents);
+            StreamingEndpoint endpoint = await GetStreamingEndpointAsync(input.StreamingEndpoint);
+            List<LiveEvent> liveEvents = await GetLiveEventsAsync(input.LiveEvents);
 
             StatusOutputModel.Resource mappedEndpoint = MapStreamingResourceToOurResource(endpoint);
             List<StatusOutputModel.Resource> mappedEvents = MapLiveEventResourceToOurResource(liveEvents);
@@ -87,7 +87,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             }
         }
 
-        private async Task<List<LiveEvent>> GetLiveEvents(List<string> liveEventNames)
+        private async Task<List<LiveEvent>> GetLiveEventsAsync(List<string> liveEventNames)
         {
             IPage<LiveEvent> eventsPage = await Client.LiveEvents.ListAsync(
                 resourceGroupName: Config.ResourceGroup,
@@ -102,7 +102,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             return events;
         }
 
-        private async Task<StreamingEndpoint> GetStreamingEndpoint(string streamingEndpoint)
+        private async Task<StreamingEndpoint> GetStreamingEndpointAsync(string streamingEndpoint)
         {
             StreamingEndpoint endpoint = await Client.StreamingEndpoints.GetAsync(
                 resourceGroupName: Config.ResourceGroup,

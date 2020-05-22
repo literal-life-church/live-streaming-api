@@ -27,7 +27,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
 
         public async Task<StatusChangeOutputModel> StartServicesAsync(InputRequestModel input)
         {
-            LoggerService.Info("Beginning start procedure", LoggerService.Start);
+            LoggerService.Info("Beginning the start procedure", LoggerService.Start);
 
             StatusOutputModel preRunServiceStatus = await GetServiceStatusAsync(input);
             await StartStreamingEndpointAsync(preRunServiceStatus, input.StreamingEndpoint);

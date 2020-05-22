@@ -10,6 +10,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
         // region Categories
 
         public static readonly string Bootstrapping = "bootstrapping";
+        public static readonly string Locators = "locators";
         public static readonly string Start = "start";
         public static readonly string Status = "start";
         public static readonly string Stop = "stop";

@@ -27,7 +27,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
 
         public async Task<StatusChangeOutputModel> StopServicesAsync(InputRequestModel input)
         {
-            LoggerService.Info("Beginning stop procedure", LoggerService.Stop);
+            LoggerService.Info("Beginning the stop procedure", LoggerService.Stop);
 
             StatusOutputModel preRunServiceStatus = await GetServiceStatusAsync(input);
             await StopStreamingEndpointAsync(preRunServiceStatus, input.StreamingEndpoint);

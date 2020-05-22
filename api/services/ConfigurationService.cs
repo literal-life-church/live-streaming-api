@@ -4,7 +4,7 @@ using System;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services
 {
-    class ConfigurationService
+    public class ConfigurationService
     {
         private static readonly string AccountName = "LIVE_STREAMING_API_ACCOUNT_NAME";
         private static readonly string ClientIdName = "LIVE_STREAMING_API_CLIENT_ID";

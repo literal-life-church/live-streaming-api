@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services
 {
-    class AuthenticationService
+    public class AuthenticationService
     {
         private readonly ConfigurationService configService = new ConfigurationService();
 
-        public async Task<AzureMediaServicesClient> GetClientAsync()
+        public async Task<AzureMediaServicesClient> GetClientAsync(ConfigurationModel config)
         {
-            ConfigurationModel config = configService.GetConfiguration();
-
             ClientCredential clientCredentials = new ClientCredential(config.ClientId, config.ClientSecret);
             ServiceClientCredentials appCredentials = await ApplicationTokenProvider.LoginSilentAsync(config.TenantId, clientCredentials, ActiveDirectoryServiceSettings.Azure);
 

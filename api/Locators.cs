@@ -33,8 +33,8 @@ namespace LiteralLifeChurch.LiveStreamingApi
             {
                 try
                 {
-                    AzureMediaServicesClient client = await authService.GetClientAsync();
                     ConfigurationModel config = configService.GetConfiguration();
+                    AzureMediaServicesClient client = await authService.GetClientAsync(config);
 
                     InputRequestService inputRequestService = new InputRequestService(client, config);
                     LocatorsController locatorsController = new LocatorsController(client, config);

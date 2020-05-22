@@ -60,7 +60,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             {
                 return stopped;
             }
-            else if (endpoint.Status == starting && events.Any(liveEvent => liveEvent.Status == starting))
+            else if (endpoint.Status == starting || events.Any(liveEvent => liveEvent.Status == starting))
             {
                 return starting;
             }
@@ -68,15 +68,15 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             {
                 return running;
             }
-            else if (endpoint.Status == stopping && events.Any(liveEvent => liveEvent.Status == stopping))
+            else if (endpoint.Status == stopping || events.Any(liveEvent => liveEvent.Status == stopping))
             {
                 return stopping;
             }
-            else if ((endpoint.Status == running || endpoint.Status == scaling) && events.Any(liveEvent => liveEvent.Status == running || liveEvent.Status == scaling))
+            else if ((endpoint.Status == running || endpoint.Status == scaling) && events.All(liveEvent => liveEvent.Status == running || liveEvent.Status == scaling))
             {
                 return running;
             }
-            else if ((endpoint.Status == deleting || endpoint.Status == stopped) && events.Any(liveEvent => liveEvent.Status == deleting || liveEvent.Status == stopped))
+            else if ((endpoint.Status == deleting || endpoint.Status == stopped) && events.All(liveEvent => liveEvent.Status == deleting || liveEvent.Status == stopped))
             {
                 return stopped;
             }

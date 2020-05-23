@@ -6,6 +6,8 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.bootstrapping
     {
         public string AccountName { get; set; }
 
+        public int ArchiveWindowLength { get; set; }
+
         public string ClientId { get; set; }
 
         public string ClientSecret { get; set; }

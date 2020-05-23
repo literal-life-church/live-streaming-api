@@ -61,7 +61,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             }
         }
 
-        private HttpResponseMessage ReportError(Exception exception)
+        private static HttpResponseMessage ReportError(Exception exception)
         {
             LoggerService.CaptureException(exception);
             return ErrorResponseService.CreateResponse(exception);

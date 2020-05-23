@@ -8,7 +8,12 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.responses
 {
     public static class SuccessResponseService
     {
-        public static HttpResponseMessage CreateResponse<Output>(Output response, HttpStatusCode statusCode = HttpStatusCode.OK) where Output : IOutputModel
+        public static HttpResponseMessage CreateResponse<Output>(Output response) where Output : IOutputModel
+        {
+            return CreateResponse(response, HttpStatusCode.OK);
+        }
+
+        public static HttpResponseMessage CreateResponse<Output>(Output response, HttpStatusCode statusCode) where Output : IOutputModel
         {
             string serializedJson = JsonConvert.SerializeObject(response);
 

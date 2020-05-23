@@ -17,7 +17,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
         private static readonly string WebhookStopFailure = "LIVE_STREAMING_API_WEBHOOK_STOP_FAILURE";
         private static readonly string WebhookStopSuccess = "LIVE_STREAMING_API_WEBHOOK_STOP_SUCCESS";
 
-        public ConfigurationModel GetConfiguration()
+        public static ConfigurationModel GetConfiguration()
         {
             ConfigurationModel model = new ConfigurationModel
             {

@@ -6,6 +6,8 @@ using LiteralLifeChurch.LiveStreamingApi.models.output;
 using LiteralLifeChurch.LiveStreamingApi.services;
 using LiteralLifeChurch.LiveStreamingApi.services.common;
 using LiteralLifeChurch.LiveStreamingApi.services.responses;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.WebJobs;
@@ -17,22 +19,27 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
-    public static class Locators
+    public class Locators
     {
-        private static readonly ConfigurationService configService = new ConfigurationService();
-        private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
-        private static readonly SuccessResponseService<LocatorsOutputModel> successResponseService = new SuccessResponseService<LocatorsOutputModel>();
+        private readonly TelemetryClient TelemetryClient;
+
+        public Locators(TelemetryConfiguration telemetryConfiguration)
+        {
+            TelemetryClient = new TelemetryClient(telemetryConfiguration);
+        }
 
         [FunctionName("Locators")]
-        public static async Task<HttpResponseMessage> Run(
+        public async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "locators")] HttpRequest req,
             ILogger log)
         {
+            TelemetryClient.TrackEvent("Locators");
+
             using (LoggerService.Init(log))
             {
                 try
                 {
-                    ConfigurationModel config = configService.GetConfiguration();
+                    ConfigurationModel config = ConfigurationService.GetConfiguration();
                     AzureMediaServicesClient client = await AuthenticationService.GetClientAsync(config);
 
                     InputRequestService inputRequestService = new InputRequestService(client, config);
@@ -41,7 +48,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
                     LocatorsOutputModel outputModel = await locatorsController.GetLocatorsAsync(inputModel);
 
-                    return successResponseService.CreateResponse(outputModel);
+                    return SuccessResponseService.CreateResponse(outputModel);
                 }
                 catch (AppException e)
                 {
@@ -57,7 +64,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
         private static HttpResponseMessage ReportError(Exception exception)
         {
             LoggerService.CaptureException(exception);
-            return errorResponseService.CreateResponse(exception);
+            return ErrorResponseService.CreateResponse(exception);
         }
     }
 }

@@ -7,6 +7,8 @@ using LiteralLifeChurch.LiveStreamingApi.models.output;
 using LiteralLifeChurch.LiveStreamingApi.services;
 using LiteralLifeChurch.LiveStreamingApi.services.common;
 using LiteralLifeChurch.LiveStreamingApi.services.responses;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.WebJobs;
@@ -19,20 +21,25 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
-    public static class Start
+    public class Start
     {
-        private static readonly ConfigurationService configService = new ConfigurationService();
-        private static readonly ErrorResponseService errorResponseService = new ErrorResponseService();
-        private static readonly SuccessResponseService<StatusChangeOutputModel> successResponseService = new SuccessResponseService<StatusChangeOutputModel>();
+        private readonly TelemetryClient TelemetryClient;
+
+        public Start(TelemetryConfiguration telemetryConfiguration)
+        {
+            TelemetryClient = new TelemetryClient(telemetryConfiguration);
+        }
 
         [FunctionName("Start")]
-        public static async Task<HttpResponseMessage> Run(
+        public async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "start")] HttpRequest req,
             ILogger log)
         {
+            TelemetryClient.TrackEvent("Start");
+
             using (LoggerService.Init(log))
             {
-                ConfigurationModel config = configService.GetConfiguration();
+                ConfigurationModel config = ConfigurationService.GetConfiguration();
 
                 try
                 {
@@ -45,7 +52,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     StatusChangeOutputModel outputModel = await startController.StartServicesAsync(inputModel);
 
                     await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary);
-                    return successResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
+                    return SuccessResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
                 }
                 catch (AppException e)
                 {
@@ -62,7 +69,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
         {
             LoggerService.CaptureException(exception);
             await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
-            return errorResponseService.CreateResponse(exception);
+            return ErrorResponseService.CreateResponse(exception);
         }
     }
 }

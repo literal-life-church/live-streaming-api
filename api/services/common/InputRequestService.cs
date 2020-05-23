@@ -12,12 +12,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
     {
         private const string EndpointQuery = "endpoint";
         private const string EventsQuery = "events";
-        private readonly InputValidator InputValidator;
         private readonly ServiceValidator ServiceValidator;
 
         public InputRequestService(AzureMediaServicesClient client, ConfigurationModel config)
         {
-            InputValidator = new InputValidator();
             ServiceValidator = new ServiceValidator(client, config);
         }
 
@@ -28,7 +26,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 
             LoggerService.Info("Passed local validation", LoggerService.Validation);
 
-            InputRequestModel model = new InputRequestModel()
+            InputRequestModel model = new InputRequestModel
             {
                 LiveEvents = request.Query[EventsQuery]
                     .ToString()

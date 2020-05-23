@@ -7,6 +7,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
     public static class ConfigurationService
     {
         private static readonly string AccountName = "LIVE_STREAMING_API_ACCOUNT_NAME";
+        private static readonly string ArchiveWindowLengthName = "LIVE_STREAMING_API_ARCHIVE_WINDOW_LENGTH";
         private static readonly string ClientIdName = "LIVE_STREAMING_API_CLIENT_ID";
         private static readonly string ClientSecretName = "LIVE_STREAMING_API_CLIENT_SECRET";
         private static readonly string ResourceGroupName = "LIVE_STREAMING_API_RESOURCE_GROUP";
@@ -34,6 +35,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
             ConfigurationModel model = new ConfigurationModel
             {
                 AccountName = Environment.GetEnvironmentVariable(AccountName),
+                ArchiveWindowLength = Convert.ToInt32(Environment.GetEnvironmentVariable(ArchiveWindowLengthName)),
                 ClientId = Environment.GetEnvironmentVariable(ClientIdName),
                 ClientSecret = Environment.GetEnvironmentVariable(ClientSecretName),
                 ManagementEndpoint = new Uri("https://management.azure.com/"),

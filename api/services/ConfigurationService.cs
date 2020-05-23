@@ -4,7 +4,7 @@ using System;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services
 {
-    public class ConfigurationService
+    public static class ConfigurationService
     {
         private static readonly string AccountName = "LIVE_STREAMING_API_ACCOUNT_NAME";
         private static readonly string ClientIdName = "LIVE_STREAMING_API_CLIENT_ID";
@@ -19,6 +19,18 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
 
         public static ConfigurationModel GetConfiguration()
         {
+            Uri startFailure = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebhookStartFailure)) ?
+                new Uri(Environment.GetEnvironmentVariable(WebhookStartFailure)) : null;
+
+            Uri startSuccess = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebhookStartSuccess)) ?
+                new Uri(Environment.GetEnvironmentVariable(WebhookStartSuccess)) : null;
+
+            Uri stopFailure = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebhookStopFailure)) ?
+                new Uri(Environment.GetEnvironmentVariable(WebhookStopFailure)) : null;
+
+            Uri stopSuccess = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebhookStopSuccess)) ?
+                new Uri(Environment.GetEnvironmentVariable(WebhookStopSuccess)) : null;
+
             ConfigurationModel model = new ConfigurationModel
             {
                 AccountName = Environment.GetEnvironmentVariable(AccountName),
@@ -28,10 +40,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.services
                 ResourceGroup = Environment.GetEnvironmentVariable(ResourceGroupName),
                 SubscriptionId = Environment.GetEnvironmentVariable(SubscriptionIdName),
                 TenantId = Environment.GetEnvironmentVariable(TenantIdName),
-                WebhookStartFailure = new Uri(Environment.GetEnvironmentVariable(WebhookStartFailure)),
-                WebhookStartSuccess = new Uri(Environment.GetEnvironmentVariable(WebhookStartSuccess)),
-                WebhookStopFailure = new Uri(Environment.GetEnvironmentVariable(WebhookStopFailure)),
-                WebhookStopSuccess = new Uri(Environment.GetEnvironmentVariable(WebhookStopSuccess))
+                WebhookStartFailure = startFailure,
+                WebhookStartSuccess = startSuccess,
+                WebhookStopFailure = stopFailure,
+                WebhookStopSuccess = stopSuccess
             };
 
             LoggerService.Info("Extracted configuration", LoggerService.Bootstrapping);

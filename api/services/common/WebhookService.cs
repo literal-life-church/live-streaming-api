@@ -11,7 +11,7 @@ using System.Web;
 
 namespace LiteralLifeChurch.LiveStreamingApi.services.common
 {
-    public class WebhookService : IService
+    public static class WebhookService
     {
         public static async Task CallWebhookAsync(Uri uri, ActionEnum action, ResourceStatusEnum status)
         {

@@ -65,7 +65,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
             }
         }
 
-        private async Task<HttpResponseMessage> ReportErrorAsync(ConfigurationModel config, Exception exception)
+        private static async Task<HttpResponseMessage> ReportErrorAsync(ConfigurationModel config, Exception exception)
         {
             LoggerService.CaptureException(exception);
             await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);

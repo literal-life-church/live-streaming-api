@@ -13,18 +13,28 @@ namespace LiteralLifeChurch.LiveStreamingApi.models.output
         [JsonProperty("endpoint")]
         public Resource StreamingEndpoint { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("summary")]
-        public ResourceStatusEnum Summary { get; set; }
+        public Status Summary { get; set; }
 
         public class Resource
         {
             [JsonProperty("name")]
             public string Name { get; set; }
 
-            [JsonConverter(typeof(StringEnumConverter))]
             [JsonProperty("status")]
-            public ResourceStatusEnum Status { get; set; }
+            public Status Status { get; set; }
+        }
+
+        public class Status
+        {
+            [JsonConverter(typeof(StringEnumConverter))]
+            [JsonProperty("name")]
+            public ResourceStatusEnum Name { get; set; }
+
+
+            [JsonConverter(typeof(StringEnumConverter))]
+            [JsonProperty("type")]
+            public ResourceStatusTypeEnum Type { get; set; }
         }
     }
 }

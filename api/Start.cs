@@ -51,7 +51,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
                     InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
                     StatusChangeOutputModel outputModel = await startController.StartServicesAsync(inputModel);
 
-                    await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary);
+                    await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary.Name);
                     return SuccessResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
                 }
                 catch (AppException e)

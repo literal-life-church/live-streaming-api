@@ -6,17 +6,29 @@ pool:
 
 variables:
   - group: azure
+  - name: solution
+    value: '**/*.sln'
+  - name: project
+    value: '**/*.csproj'
 
 jobs:
   - job: build
     condition: ne(variables['Build.SourceBranch'], 'refs/heads/master')
     steps:
+      - task: NuGetToolInstaller@1
+        displayName: Install NuGet Packages
+
+      - task: NuGetCommand@2
+        displayName: Restore NuGet Packages
+        inputs:
+          restoreSolution: '$(solution)'
+
       - task: DotNetCoreCLI@2
         displayName: Build Application
         inputs:
           command: publish
           arguments: '--configuration Release --output publish_output'
-          projects: '*.csproj'
+          projects: '$(project)'
           publishWebProjects: false
           modifyOutputPath: false
           zipAfterPublish: false

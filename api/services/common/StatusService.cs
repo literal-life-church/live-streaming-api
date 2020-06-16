@@ -50,41 +50,53 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 
         // region Workflow
 
-        private static ResourceStatusEnum DetermineSummary(StatusOutputModel.Resource endpoint, List<StatusOutputModel.Resource> events)
+        private static StatusOutputModel.Status DetermineSummary(StatusOutputModel.Resource endpoint, List<StatusOutputModel.Resource> events)
         {
-            if (endpoint.Status == error || events.Any(liveEvent => liveEvent.Status == error))
+            StatusOutputModel.Status status = new StatusOutputModel.Status();
+
+            if (endpoint.Status.Name == error || events.Any(liveEvent => liveEvent.Status.Name == error))
             {
-                return error;
+                status.Name = error;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
-            else if (endpoint.Status == stopped && events.All(liveEvent => liveEvent.Status == stopped))
+            else if (endpoint.Status.Name == stopped && events.All(liveEvent => liveEvent.Status.Name == stopped))
             {
-                return stopped;
+                status.Name = stopped;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
-            else if (endpoint.Status == starting || events.Any(liveEvent => liveEvent.Status == starting))
+            else if (endpoint.Status.Name == starting || events.Any(liveEvent => liveEvent.Status.Name == starting))
             {
-                return starting;
+                status.Name = starting;
+                status.Type = ResourceStatusTypeEnum.Transient;
             }
-            else if (endpoint.Status == running && events.All(liveEvent => liveEvent.Status == running))
+            else if (endpoint.Status.Name == running && events.All(liveEvent => liveEvent.Status.Name == running))
             {
-                return running;
+                status.Name = running;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
-            else if (endpoint.Status == stopping || events.Any(liveEvent => liveEvent.Status == stopping))
+            else if (endpoint.Status.Name == stopping || events.Any(liveEvent => liveEvent.Status.Name == stopping))
             {
-                return stopping;
+                status.Name = stopping;
+                status.Type = ResourceStatusTypeEnum.Transient;
             }
-            else if ((endpoint.Status == running || endpoint.Status == scaling) && events.All(liveEvent => liveEvent.Status == running || liveEvent.Status == scaling))
+            else if ((endpoint.Status.Name == running || endpoint.Status.Name == scaling) && events.All(liveEvent => liveEvent.Status.Name == running || liveEvent.Status.Name == scaling))
             {
-                return running;
+                status.Name = running;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
-            else if ((endpoint.Status == deleting || endpoint.Status == stopped) && events.All(liveEvent => liveEvent.Status == deleting || liveEvent.Status == stopped))
+            else if ((endpoint.Status.Name == deleting || endpoint.Status.Name == stopped) && events.All(liveEvent => liveEvent.Status.Name == deleting || liveEvent.Status.Name == stopped))
             {
-                return stopped;
+                status.Name = stopped;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
             else
             {
                 LoggerService.Error("Encountered an unknown summary state", LoggerService.Status);
-                return error;
+                status.Name = error;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
+
+            return status;
         }
 
         private async Task<List<LiveEvent>> GetLiveEventsAsync(List<string> liveEventNames)
@@ -121,37 +133,44 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
             List<StatusOutputModel.Resource> mappedLiveEvents = liveEvents
                 .Select(liveEvent =>
                 {
-                    ResourceStatusEnum status;
+                    StatusOutputModel.Status status = new StatusOutputModel.Status();
 
                     if (!liveEvent.ResourceState.HasValue)
                     {
                         LoggerService.Error($"Azure did not report a status for the live event '{liveEvent.Name}'", LoggerService.Status);
-                        status = error;
+                        status.Name = error;
+                        status.Type = ResourceStatusTypeEnum.Stable;
                     }
                     else if (liveEvent.ResourceState.Value == LiveEventResourceState.Deleting)
                     {
-                        status = deleting;
+                        status.Name = deleting;
+                        status.Type = ResourceStatusTypeEnum.Transient;
                     }
                     else if (liveEvent.ResourceState.Value == LiveEventResourceState.Running)
                     {
-                        status = running;
+                        status.Name = running;
+                        status.Type = ResourceStatusTypeEnum.Stable;
                     }
                     else if (liveEvent.ResourceState.Value == LiveEventResourceState.Starting)
                     {
-                        status = starting;
+                        status.Name = starting;
+                        status.Type = ResourceStatusTypeEnum.Transient;
                     }
                     else if (liveEvent.ResourceState.Value == LiveEventResourceState.Stopped)
                     {
-                        status = stopped;
+                        status.Name = stopped;
+                        status.Type = ResourceStatusTypeEnum.Stable;
                     }
                     else if (liveEvent.ResourceState.Value == LiveEventResourceState.Stopping)
                     {
-                        status = stopping;
+                        status.Name = stopping;
+                        status.Type = ResourceStatusTypeEnum.Transient;
                     }
                     else
                     {
                         LoggerService.Error($"Encountered an unknown state for the live event '{liveEvent.Name}'", LoggerService.Status);
-                        status = error;
+                        status.Name = error;
+                        status.Type = ResourceStatusTypeEnum.Stable;
                     }
 
                     return new StatusOutputModel.Resource
@@ -168,41 +187,49 @@ namespace LiteralLifeChurch.LiveStreamingApi.services.common
 
         private static StatusOutputModel.Resource MapStreamingResourceToOurResource(StreamingEndpoint endpoint)
         {
-            ResourceStatusEnum status;
+            StatusOutputModel.Status status = new StatusOutputModel.Status();
 
             if (!endpoint.ResourceState.HasValue)
             {
                 LoggerService.Error($"Azure did not report a status for the streaming endpoint '{endpoint.Name}'", LoggerService.Status);
-                status = error;
+                status.Name = error;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
             else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Deleting)
             {
-                status = deleting;
+                status.Name = deleting;
+                status.Type = ResourceStatusTypeEnum.Transient;
             }
             else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Running)
             {
-                status = running;
+                status.Name = running;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
             else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Scaling)
             {
-                status = scaling;
+                status.Name = scaling;
+                status.Type = ResourceStatusTypeEnum.Transient;
             }
             else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Starting)
             {
-                status = starting;
+                status.Name = starting;
+                status.Type = ResourceStatusTypeEnum.Transient;
             }
             else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Stopped)
             {
-                status = stopped;
+                status.Name = stopped;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
             else if (endpoint.ResourceState.Value == StreamingEndpointResourceState.Stopping)
             {
-                status = stopping;
+                status.Name = stopping;
+                status.Type = ResourceStatusTypeEnum.Transient;
             }
             else
             {
                 LoggerService.Error($"Encountered an unknown state for the streaming endpoint '{endpoint.Name}'", LoggerService.Status);
-                status = error;
+                status.Name = error;
+                status.Type = ResourceStatusTypeEnum.Stable;
             }
 
             StatusOutputModel.Resource mappedStreamingEndpoint = new StatusOutputModel.Resource

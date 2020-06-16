@@ -114,8 +114,8 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                 liveEventDiff.Add(new StatusChangeOutputModel.Diff.Resource
                 {
                     Name = preRunServiceStatus.LiveEvents[i].Name,
-                    NewStatus = postRunServiceStatus.LiveEvents[i].Status,
-                    OldStatus = preRunServiceStatus.LiveEvents[i].Status
+                    NewStatus = postRunServiceStatus.LiveEvents[i].Status.Name,
+                    OldStatus = preRunServiceStatus.LiveEvents[i].Status.Name
                 });
             }
 
@@ -127,8 +127,8 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                     StreamingEndpoint = new StatusChangeOutputModel.Diff.Resource
                     {
                         Name = preRunServiceStatus.StreamingEndpoint.Name,
-                        NewStatus = postRunServiceStatus.StreamingEndpoint.Status,
-                        OldStatus = preRunServiceStatus.StreamingEndpoint.Status
+                        NewStatus = postRunServiceStatus.StreamingEndpoint.Status.Name,
+                        OldStatus = preRunServiceStatus.StreamingEndpoint.Status.Name
                     }
                 },
                 Status = postRunServiceStatus
@@ -162,7 +162,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
                     .LiveEvents
                     .FindLast(currentEvent => currentEvent.Name == liveEventName);
 
-            if (liveEvent.Status != ResourceStatusEnum.Running)
+            if (liveEvent.Status.Name != ResourceStatusEnum.Running)
             {
                 LoggerService.Warn("Did not stop the live event", LoggerService.Stop);
                 return false;
@@ -187,7 +187,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.controllers
 
         private async Task StopStreamingEndpointAsync(StatusOutputModel preRunServiceStatus, string endpointName)
         {
-            if (preRunServiceStatus.StreamingEndpoint.Status == ResourceStatusEnum.Running)
+            if (preRunServiceStatus.StreamingEndpoint.Status.Name == ResourceStatusEnum.Running)
             {
                 await Client.StreamingEndpoints.StopAsync(
                     resourceGroupName: Config.ResourceGroup,

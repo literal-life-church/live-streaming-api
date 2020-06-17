@@ -30,7 +30,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
         [FunctionName("Locators")]
         public async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "locators")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "viewer/locators")] HttpRequest req,
             ILogger log)
         {
             TelemetryClient.TrackEvent("Locators");

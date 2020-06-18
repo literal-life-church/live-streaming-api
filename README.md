@@ -1,5 +1,5 @@
 <div align="center">
-<h1>Live Streaming API<br/><sub>Control one more live live streaming events on Azure Media Services</sub></h1>
+<h1>Live Streaming API<br/><sub>Control one more live streaming events on Azure Media Services</sub></h1>
 
 <strong>[:one: API](https://github.com/literal-life-church/live-streaming-api/)</strong> |
 [:two: Controller](https://github.com/literal-life-church/live-streaming-controller/) |
@@ -78,8 +78,8 @@ Last, the Live Event(s) should be created.
 
 All of the application's configuration resides inside of environment variables. Please refer to this table for a complete reference:
 
-| Variable                                   | Description                                                                                            | Required           |
-|--------------------------------------------|--------------------------------------------------------------------------------------------------------|--------------------|
+| Variable                                   | Description                                                                                            |      Required      |
+|--------------------------------------------|--------------------------------------------------------------------------------------------------------|:------------------:|
 | `APPINSIGHTS_INSTRUMENTATIONKEY`           | Key to authentication with Azure Application Insights and begin sending telemetry                      | :x:                |
 | `LIVE_STREAMING_API_ACCOUNT_NAME`          | Name of the Media Service resource in Azure                                                            | :heavy_check_mark: |
 | `LIVE_STREAMING_API_ARCHIVE_WINDOW_LENGTH` | Length of the window, in minutes, a viewer can rewind to see behind the real-time stream               | :heavy_check_mark: |

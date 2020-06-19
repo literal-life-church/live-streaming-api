@@ -1,5 +1,5 @@
 <div align="center">
-<h1>Live Streaming API<br/><sub>Control one more live streaming events on Azure Media Services</sub></h1>
+<h1>Live Streaming API<br/><sub>Control one or more live streaming events on Azure Media Services</sub></h1>
 
 <strong>[:one: API](https://github.com/literal-life-church/live-streaming-api/)</strong> |
 [:two: Controller](https://github.com/literal-life-church/live-streaming-controller/) |
@@ -36,7 +36,8 @@ The impetus of this application was to create an easy way to spin up Media Servi
 
 This project controls two major resource types on Azure Media Services: Streaming Endpoints and Live Events. Here are their definitions:
 
-- **Live Events:** A &quot;channel&quot; to which a broadcaster 
+- **Live Events:** A &quot;channel&quot; which a broadcaster will reuse to publish similar events over and over again.
+- **Streaming Endpoint:** The ingest mechanism on Azure Media Services which allows a broadcaster to connect their streaming software of choice, such as [Wirecast](https://www.telestream.net/wirecast/) or [OBS Studio](https://obsproject.com/), and begin sending a live stream.
 
 ## Installation
 
@@ -225,3 +226,57 @@ https://www.wwbhook.com/?action=start|stop&status=error|running|starting|stoppin
 ```
 
 ## Statuses
+
+Aside from turning on and off the resources themselves, status reports are perhaps the most important aspect of this application. Since the state of each service decides whether or not your Azure account is billed, it is very important to have a reliable way of knowing their curret state. This section summarizes what the possible statuses are for each resource.
+
+Each status has a `type` assocaited with it. Here are the types:
+
+- **Stable:** The status will not change at all unless explicitly instructed to do so by the user.
+- **Transient:** The current status is only temporary and is expected to change shortly
+
+For example, since it make take a moment to start any given resource, the API may show a resource as `starting` (transient state) until it starts completely and shows as `running` (stable state).
+
+### Streaming Endpoint
+
+Here are the seven possible states for a Streaming Endpoint.
+
+| Name     | Type      | Description                                                         |
+|----------|-----------|---------------------------------------------------------------------|
+| Deleting | Transient | Resource is being deleted on Azure                                  |
+| Error    | Stable    | Whenever none of the other conditions in this table are satisfied   |
+| Running  | Stable    | Endpoint is on and ready to ingest a stream                         |
+| Scaling  | Transient | Endpoint is on and Azure is scaling up the capacity of the endpoint |
+| Starting | Transient | Endpoint is turning on                                              |
+| Stopped  | Stable    | Endpoint is off                                                     |
+| Stopping | Transient | Endpoint is turning off                                             |
+
+Note that this application does not delete your streaming endpoints. Thus, the `Deleting` status can only appear if the resource is deleted from the Azure Portal.
+
+### Live Events
+
+Here are the six possible states for a Live Event.
+
+| Name     | Type      | Description                                                       |
+|----------|-----------|-------------------------------------------------------------------|
+| Deleting | Transient | Resource is being deleted on Azure                                |
+| Error    | Stable    | Whenever none of the other conditions in this table are satisfied |
+| Running  | Stable    | Live Event is on and ready to ingest a stream                     |
+| Starting | Transient | Live Event is turning on                                          |
+| Stopped  | Stable    | Live Event is off                                                 |
+| Stopping | Transient | Live Event is turning off                                         |
+
+Note that this application does not delete your live events. Thus, the `Deleting` status can only appear if the resource is deleted from the Azure Portal.
+
+### Summary
+
+Since there are several steps to determine how to collectively summarize the state of a Streaming Endpoint and all requested Live Events, the application does this on your behalf. Here are the rules it follows for each state.
+
+| Name     | Type      | Description                                                                                                                 |
+|----------|-----------|-----------------------------------------------------------------------------------------------------------------------------|
+| Error    | Stable    | Whenever none of the other conditions in this table are satisfied, or ANY Streaming Endpoint or Live Event reports an error |
+| Running  | Stable    | Streaming Endpoint is either running or scaling and ALL Live Events are either running or scaling                           |
+| Starting | Transient | Either the Streaming Endpoint or ANY Live Event is in the starting state                                                    |
+| Stopped  | Stable    | Streaming Endpoint is either stopped or deleting and ALL Live Events are either stopped or deleting                         |
+| Stopping | Transient | Either the Streaming Endpoint or ANY Live Event is in the stopping state                                                    |
+
+Notice how the `scaling` and `deleting` statuses are omitted from the summary, since they effectively map to `running` and `stopped`, respectively.

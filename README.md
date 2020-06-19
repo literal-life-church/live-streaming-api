@@ -43,12 +43,12 @@ This project controls two major resource types on Azure Media Services: Streamin
 
 As mentioned before, this application is intended to run on Azure Functions. Therefore, the instructions are geared toward the process of installing the API there. Overall, there are several significant phases to the installation:
 
-1.   [Setting up the Media Services resources on Azure](#Setting-up-the-Media-Services-Resources-on-Azure)
-2.   [Creating the Azure Functions application](#Creating-the-Azure-Functions-Application)
-3.   [Setting up the environment variables](#Setting-up-the-Environment-Variables)
-4.   [Deploying the application](#Deploying-the-Application)
-5.   [Authenticating with the application](#Authenticating-with-the-Application)
-6.   [Set up the streaming software](#Set-up-the-Streaming-Software)
+1.  [Setting up the Media Services resources on Azure](#Setting-up-the-Media-Services-Resources-on-Azure)
+2.  [Creating the Azure Functions application](#Creating-the-Azure-Functions-Application)
+3.  [Setting up the environment variables](#Setting-up-the-Environment-Variables)
+4.  [Deploying the application](#Deploying-the-Application)
+5.  [Authenticating with the application](#Authenticating-with-the-Application)
+6.  [Set up the streaming software](#Set-up-the-Streaming-Software)
 
 Guides for using the API as a [broadcaster](https://github.com/literal-life-church/live-streaming-controller) and [viewer](https://github.com/literal-life-church/stream-switch) are available in the READMEs of their respective repositories.
 
@@ -182,9 +182,9 @@ Webhooks can provide an excellent amount of extensibility and automation to your
 
 These environment variables are also optional. It is recommended to include them if you have a Sentry account and wish to monitor the health of this application. For more information on these environment variables, please see the [Sentry Docs](https://docs.sentry.io/).
 
-- `SENTRY_DSN`: https://docs.sentry.io/error-reporting/configuration/?platform=csharp#dsn
-- `SENTRY_ENVIRONMENT`: https://docs.sentry.io/error-reporting/configuration/?platform=csharp#environment
-- `SENTRY_RELEASE`: https://docs.sentry.io/error-reporting/configuration/?platform=csharp#release
+-   `SENTRY_DSN`: [https://docs.sentry.io/error-reporting/configuration/?platform=csharp#dsn](https://docs.sentry.io/error-reporting/configuration/?platform=csharp#dsn)
+-   `SENTRY_ENVIRONMENT`: [https://docs.sentry.io/error-reporting/configuration/?platform=csharp#environment](https://docs.sentry.io/error-reporting/configuration/?platform=csharp#environment)
+-   `SENTRY_RELEASE`: [https://docs.sentry.io/error-reporting/configuration/?platform=csharp#release](https://docs.sentry.io/error-reporting/configuration/?platform=csharp#release)
 
 ### Deploying the Application
 
@@ -254,8 +254,8 @@ Aside from turning on and off the resources themselves, status reports are perha
 
 Each status has a `type` associated with it. Here are the types:
 
-- **Stable:** The status will not change at all unless explicitly instructed to do so by the user.
-- **Transient:** The current status is only temporary and is expected to change shortly
+-   **Stable:** The status will not change at all unless explicitly instructed to do so by the user.
+-   **Transient:** The current status is only temporary and is expected to change shortly
 
 For example, since it may take a moment to start any given resource, the API may show a resource as `starting` (transient state) until it starts completely and shows as `running` (stable state).
 

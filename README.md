@@ -18,9 +18,9 @@
 
 The Live Streaming API is a subset of a three-part application designed to control the state of one or more live events on [Azure Media Services](https://azure.microsoft.com/en-us/services/media-services/). These parts are:
 
-1. **[Live Streaming API](https://github.com/literal-life-church/live-streaming-api/):** Turn on or off one more live events on Azure Media Services
-1. **[Live Streaming Controller](https://github.com/literal-life-church/live-streaming-controller):** A simple tool for the event broadcaster to interface with the Live Streaming API
-1. **[Stream Switch](https://github.com/literal-life-church/stream-switch):** A front-end, viewer application for viewing one or more live streams on a website
+1.  **[Live Streaming API](https://github.com/literal-life-church/live-streaming-api/):** Turn on or off one more live events on Azure Media Services
+2.  **[Live Streaming Controller](https://github.com/literal-life-church/live-streaming-controller):** A simple tool for the event broadcaster to interface with the Live Streaming API
+3.  **[Stream Switch](https://github.com/literal-life-church/stream-switch):** A front-end, viewer application for viewing one or more live streams on a website
 
 In production, an event broadcaster would use the Live Streaming Controller as a front-end application to call the `/start`, `/stop`, and `/status` endpoints on the Live Streaming API to respectively start the streaming services at the beginning of an event, stop the services at the end, and read the status of these resources at any point before, during, or after. All of these calls are authenticated, since they can reveal sensitive information about the state of your resources, or result in a state change, and thus a billing change, on the broadcaster's Azure account.
 
@@ -36,19 +36,19 @@ The impetus of this application was to create an easy way to spin up Media Servi
 
 This project controls two major resource types on Azure Media Services: Streaming Endpoints and Live Events. Here are their definitions:
 
-- **Live Events:** A channel that a broadcaster will reuse to publish similar events over and over again.
-- **Streaming Endpoint:** The ingest mechanism on Azure Media Services which allows a broadcaster to connect their streaming software of choice, such as [Wirecast](https://www.telestream.net/wirecast/) or [OBS Studio](https://obsproject.com/), and begin sending a live stream.
+-   **Live Events:** A channel that a broadcaster will reuse to publish similar events over and over again.
+-   **Streaming Endpoint:** The ingest mechanism on Azure Media Services which allows a broadcaster to connect their streaming software of choice, such as [Wirecast](https://www.telestream.net/wirecast/) or [OBS Studio](https://obsproject.com/), and begin sending a live stream.
 
 ## Installation
 
 As mentioned before, this application is intended to run on Azure Functions. Therefore, the instructions are geared toward the process of installing the API there. Overall, there are several significant phases to the installation:
 
-1. [Setting up the Media Services resources on Azure](#Setting-up-the-Media-Services-Resources-on-Azure)
-1. [Creating the Azure Functions application](#Creating-the-Azure-Functions-Application)
-1. [Setting up the environment variables](#Setting-up-the-Environment-Variables)
-1. [Deploying the application](#Deploying-the-Application)
-1. [Authenticating with the application](#Authenticating-with-the-Application)
-1. [Set up the streaming software](#Set-up-the-Streaming-Software)
+1.   [Setting up the Media Services resources on Azure](#Setting-up-the-Media-Services-Resources-on-Azure)
+2.   [Creating the Azure Functions application](#Creating-the-Azure-Functions-Application)
+3.   [Setting up the environment variables](#Setting-up-the-Environment-Variables)
+4.   [Deploying the application](#Deploying-the-Application)
+5.   [Authenticating with the application](#Authenticating-with-the-Application)
+6.   [Set up the streaming software](#Set-up-the-Streaming-Software)
 
 Guides for using the API as a [broadcaster](https://github.com/literal-life-church/live-streaming-controller) and [viewer](https://github.com/literal-life-church/stream-switch) are available in the READMEs of their respective repositories.
 
@@ -60,33 +60,32 @@ Obviously, to use this application, you'll need an active Azure account. Please 
 
 First, begin by creating the Media Service resource.
 
-1. From the search bar at the top, search for "Media Services," and then select the "Media Services" service
-1. Click the Add button to create a new Media Service
-1. Enter an Account Name, choose your active Subscription, and a Location
-1. For the resource group, create a new one
-1. Click on Storage Account &gt; Create New
-1. Enter a Storage Account Name, and leave all other settings as the default
-1. Back on the Media Service creation screen, click the Create button
+1.  From the search bar at the top, search for "Media Services," and then select the "Media Services" service
+2.  Click the Add button to create a new Media Service
+3.  Enter an Account Name, choose your active Subscription, and a Location
+4.  For the resource group, create a new one
+5.  Click on Storage Account &gt; Create New
+6.  Enter a Storage Account Name, and leave all other settings as the default
+7.  Back on the Media Service creation screen, click the Create button
 
 #### Create the Streaming Endpoint
 
 Now that the Media Service resource is available, create a streaming endpoint.
 
-1. Click on the newly created Media Service resource
-1. On the left panel, select Streaming Endpoints &gt; Endpoint button to create a new Endpoint
-1. Enter a name for the Streaming Endpoint, and configure the rest of the options on the page as desired
-1. Click the Add Button
-
+1.  Click on the newly created Media Service resource
+2.  On the left panel, select Streaming Endpoints &gt; Endpoint button to create a new Endpoint
+3.  Enter a name for the Streaming Endpoint, and configure the rest of the options on the page as desired
+4.  Click the Add Button
 
 #### Create the Live Events
 
 Last, the Live Event(s) should be created.
 
-1. Inside of the Media Service resource, go to the left panel and select Live Streaming &gt; Live Events tab &gt; Add Live Event button
-1. Enter a Live Event Name and configure the rest of the options as desired
-1. Do not start the Live Event
-1. Click the Review + Create button and confirm your entry to create the Live Event
-1. Repeat these steps for each necessary Live Event
+1.  Inside of the Media Service resource, go to the left panel and select Live Streaming &gt; Live Events tab &gt; Add Live Event button
+2.  Enter a Live Event Name and configure the rest of the options as desired
+3.  Do not start the Live Event
+4.  Click the Review + Create button and confirm your entry to create the Live Event
+5.  Repeat these steps for each necessary Live Event
 
 ### Creating the Azure Functions Application
 
@@ -96,22 +95,22 @@ Since this application needs a platform to host it, the next major step is to cr
 
 Follow these steps to create a resource to which the application can be deployed.
 
-1. From the search bar at the top, search for "Function App", and then select the "Function App" service
-1. Click the Add button to create a new Function App
-1. Specify a billing Subscription, Resource Gropu, and Function App Name
-1. For the Publish option, select Code
-1. For the Runtime Stack, select .NET Core
-1. For the Version, select the lastest available version
-1. Specify the Region as desired
-1. Click the Review + Create button and confirm your entry to create the Function App
+1.  From the search bar at the top, search for "Function App", and then select the "Function App" service
+2.  Click the Add button to create a new Function App
+3.  Specify a billing Subscription, Resource Gropu, and Function App Name
+4.  For the Publish option, select Code
+5.  For the Runtime Stack, select .NET Core
+6.  For the Version, select the lastest available version
+7.  Specify the Region as desired
+8.  Click the Review + Create button and confirm your entry to create the Function App
 
 #### Setup Azure Application Insights
 
 Although it is not strictly necessary, adding Azure Application Insights can help provide better into how the application is performing and how often it is used.
 
-1. In the Function Apps list, select the newly created application
-1. From the panel on the left, select Application Insights &gt; Turn on Application Insights
-1. Select the Apply button to confirm your action
+1.  In the Function Apps list, select the newly created application
+2.  From the panel on the left, select Application Insights &gt; Turn on Application Insights
+3.  Select the Apply button to confirm your action
 
 An environment variable called `APPINSIGHTS_INSTRUMENTATIONKEY` is automatically applied to the Function App for the application to use and send its telemetry. 
 
@@ -139,13 +138,13 @@ All of the application's configuration resides inside of the environment variabl
 
 The sections below show how to obtain the necessary information to populate these environment variables for the application. Please log in to the [Azure Portal](https://portal.azure.com/) to find the information shown in these steps. Some of the most important information in the above table is available from a single location in Azure.
 
-1. From the search bar at the top, search for "Media Services", and then select the "Media Services" service
-1. In the table of available Media Services, select the service to use
-1. In the panel on the left, select API Access
-1. Under the Manage Your AAD App and Secret section, for the AAD App, click Create New &gt; Enter a Name &gt; click the Create button
-1. Once the application is created, for the Secret, click Create New &gt; Enter a Description and Expiration &gt; click the Create button
-1. Under the Connect to Media Services API section, ensure `V3` is selected
-1. Here is the mapping of environment variables to the values shown in Azure:
+1.  From the search bar at the top, search for "Media Services", and then select the "Media Services" service
+2.  In the table of available Media Services, select the service to use
+3.  In the panel on the left, select API Access
+4.  Under the Manage Your AAD App and Secret section, for the AAD App, click Create New &gt; Enter a Name &gt; click the Create button
+5.  Once the application is created, for the Secret, click Create New &gt; Enter a Description and Expiration &gt; click the Create button
+6.  Under the Connect to Media Services API section, ensure `V3` is selected
+7.  Here is the mapping of environment variables to the values shown in Azure:
 
 | Environment Variable                       | Azure Property                    |
 |--------------------------------------------|-----------------------------------|
@@ -191,21 +190,21 @@ These environment variables are also optional. It is recommended to include them
 
 The easiest way to deploy this application is to clone this repository and publish from Visual Studio. These steps assume you are using Visual Studio for Windows.
 
-1. Clone this repository
-1. Open the solution in Visual Studio
-1. In the Solution pane, right-click on the `api` project &gt; Publish
-1. In the Publish window, select Azure as the publish target
-1. If necessary, log into your Azure account
-1. Select the Function App which was created above and click Finish
+1.  Clone this repository
+2.  Open the solution in Visual Studio
+3.  In the Solution pane, right-click on the `api` project &gt; Publish
+4.  In the Publish window, select Azure as the publish target
+5.  If necessary, log into your Azure account
+6.  Select the Function App which was created above and click Finish
 
 ### Authenticating with the Application
 
 For security purposes, the `/start`, `/stop`, and `/status` endpoints require an API key to access. This key is generated and managed by Azure.
 
-1. In the Azure Portal, select the newly created Function App
-1. In the panel on the left, select App Keys &gt; New Host Key
-1. Give the key a Name, and let it automatically generate the Value
-1. Press the OK button to generate the key
+1.  In the Azure Portal, select the newly created Function App
+2.  In the panel on the left, select App Keys &gt; New Host Key
+3.  Give the key a Name, and let it automatically generate the Value
+4.  Press the OK button to generate the key
 
 When making calls to any of the above three endpoints, make sure to append `code=your-key-here` as a query parameter to the call to authenticate your request.
 
@@ -213,21 +212,21 @@ When making calls to any of the above three endpoints, make sure to append `code
 
 Now that all of the resources are in place on Azure, the streaming software can be configured. Common examples of streaming software include [Wirecast](https://www.telestream.net/wirecast/) or [OBS Studio](https://obsproject.com/). Both pieces of software require a streaming URL to which the stream is sent.
 
-1. In the Azure Portal, go to Media Services and select the appropriate resource
-1. In the panel on the left select Live Streaming &gt; Live Events tab
-1. Select the appropriate Live Event from the list
-1. Copy the Input URL from the Live Event details screen. This URL begins with `rtmp://` or `rtmps://`. If you do not see this URL, make sure that the Essentials panel is expanded by clicking the toggle arrows near the top of the screen.
-1. Paste the URL into your streaming software, according to the manufacture's instructions
-1. Repeat these steps to extract the Input URL for each relevant Live Event
+1.  In the Azure Portal, go to Media Services and select the appropriate resource
+2.  In the panel on the left select Live Streaming &gt; Live Events tab
+3.  Select the appropriate Live Event from the list
+4.  Copy the Input URL from the Live Event details screen. This URL begins with `rtmp://` or `rtmps://`. If you do not see this URL, make sure that the Essentials panel is expanded by clicking the toggle arrows near the top of the screen.
+5.  Paste the URL into your streaming software, according to the manufacture's instructions
+6.  Repeat these steps to extract the Input URL for each relevant Live Event
 
 ## Webhooks
 
 This application is able to send out events for four different cases. Those cases are:
 
-1. **Azure Media Services Start Success:** Whenever all of the steps to start one or more Live Event(s) and a Streaming Endpoint succeed. This does not indicate that all services are running (since they must have been in the proper state beforehand to start), but rather that the process finished without an error.
-1. **Azure Media Services Start Failure:** Similar to the above condition, except the application stopped partway through because of an error. If Sentry is configured, the error will be reported there.
-1. **Azure Media Services Stop Success:** Whenever all of the steps to stop one or more Live Event(s) and a Streaming Endpoint succeed. This does not indicate that all services are stopped (since they must have been in the proper state beforehand to stop), but rather that the process finished without an error.
-1. **Azure Media Services Stop Failure:** Similar to the above condition, except the application stopped partway through because of an error. If Sentry is configured, the error will be reported there.
+1.  **Azure Media Services Start Success:** Whenever all of the steps to start one or more Live Event(s) and a Streaming Endpoint succeed. This does not indicate that all services are running (since they must have been in the proper state beforehand to start), but rather that the process finished without an error.
+2.  **Azure Media Services Start Failure:** Similar to the above condition, except the application stopped partway through because of an error. If Sentry is configured, the error will be reported there.
+3.  **Azure Media Services Stop Success:** Whenever all of the steps to stop one or more Live Event(s) and a Streaming Endpoint succeed. This does not indicate that all services are stopped (since they must have been in the proper state beforehand to stop), but rather that the process finished without an error.
+4.  **Azure Media Services Stop Failure:** Similar to the above condition, except the application stopped partway through because of an error. If Sentry is configured, the error will be reported there.
 
 The application is designed to be flexible enough to send the webhook in a variety of ways so that it can accommodate whatever the expectations of the receiving application may be.
 

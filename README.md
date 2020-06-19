@@ -47,6 +47,8 @@ As mentioned before, this application is intended to run on Azure Functions. The
 1. [Creating the Azure Functions application](#Creating-the-Azure-Functions-Application)
 1. [Setting up the environment variables](#Setting-up-the-Environment-Variables)
 1. [Deploying the application](#Deploying-the-Application)
+1. [Authenticating with the application](#Authenticating-with-the-Application)
+1. [Set up the streaming software](#Set-up-the-Streaming-Software)
 
 Guides for using the API as a [broadcaster](https://github.com/literal-life-church/live-streaming-controller) and [viewer](https://github.com/literal-life-church/stream-switch) are available in the READMEs of their respective repositories.
 
@@ -196,6 +198,28 @@ The easiest way to deploy this application is to clone this repository and publi
 1. If necessary, log into your Azure account
 1. Select the Function App which was created above and click Finish
 
+### Authenticating with the Application
+
+For security purposes, the `/start`, `/stop`, and `/status` endpoints require an API key to access. This key is generated and managed by Azure.
+
+1. In the Azure Portal, select the newly created Function App
+1. In the panel on the left, select App Keys &gt; New Host Key
+1. Give the key a Name, and let it automatically generate the Value
+1. Press the OK button to generate the key
+
+When making calls to any of the above three endpoints, make sure to append `code=your-key-here` as a query parameter to the call to authenticate your request.
+
+### Set up the Streaming Software
+
+Now that all of the resources are in place on Azure, the streaming software can be configured. Common examples of streaming software include [Wirecast](https://www.telestream.net/wirecast/) or [OBS Studio](https://obsproject.com/). Both pieces of software require a streaming URL to which the stream is sent.
+
+1. In the Azure Portal, go to Media Services and select the appropriate resource
+1. In the panel on the left select Live Streaming &gt; Live Events tab
+1. Select the appropriate Live Event from the list
+1. Copy the Input URL from the Live Event details screen. This URL begins with `rtmp://` or `rtmps://`. If you do not see this URL, make sure that the Essentials panel is expanded by clicking the toggle arrows near the top of the screen.
+1. Paste the URL into your streaming software, according to the manufacture's instructions
+1. Repeat these steps to extract the Input URL for each relevant Live Event
+
 ## Webhooks
 
 This application is able to send out events for four different cases. Those cases are:
@@ -260,7 +284,7 @@ Here are the six possible states for a Live Event.
 |----------|-----------|-------------------------------------------------------------------|
 | Deleting | Transient | Resource is being deleted on Azure                                |
 | Error    | Stable    | Whenever none of the other conditions in this table are satisfied |
-| Running  | Stable    | Live Event is on and ready to ingest a stream                     |
+| Running  | Stable    | Live Event is on and ready to broadcast a stream                  |
 | Starting | Transient | Live Event is turning on                                          |
 | Stopped  | Stable    | Live Event is off                                                 |
 | Stopping | Transient | Live Event is turning off                                         |

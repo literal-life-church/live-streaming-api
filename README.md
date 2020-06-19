@@ -18,30 +18,30 @@
 
 The Live Streaming API is a subset of a three-part application designed to control the state of one or more live events on [Azure Media Services](https://azure.microsoft.com/en-us/services/media-services/). These parts are:
 
-1. **[Live Streaming API](https://github.com/literal-life-church/live-streaming-api/):** Turn on or off one more live events on Azure Meida Services
+1. **[Live Streaming API](https://github.com/literal-life-church/live-streaming-api/):** Turn on or off one more live events on Azure Media Services
 1. **[Live Streaming Controller](https://github.com/literal-life-church/live-streaming-controller):** A simple tool for the event broadcaster to interface with the Live Streaming API
 1. **[Stream Switch](https://github.com/literal-life-church/stream-switch):** A front-end, viewer application for viewing one or more live streams on a website
 
 In production, an event broadcaster would use the Live Streaming Controller as a front-end application to call the `/start`, `/stop`, and `/status` endpoints on the Live Streaming API to respectively start the streaming services at the beginning of an event, stop the services at the end, and read the status of these resources at any point before, during, or after. All of these calls are authenticated, since they can reveal sensitive information about the state of your resources, or result in a state change, and thus a billing change, on the broadcaster's Azure account.
 
-A viewer would then go to a website which has the Stream Switch installed to view the event. That application calls the `/locators` endpoint to fetch the streaming URLs from Azure to play inside of an HTML5 video player on the web. Since this endpoint intended for public consumption, it is the only endpoint in the application which is not authenticated.
+A viewer would then go to a website that has the Stream Switch installed to view the event. That application calls the `/locators` endpoint to fetch the streaming URLs from Azure to play inside of an HTML5 video player on the web. Since this endpoint intended for public consumption, it is the only endpoint in the application which is not authenticated.
 
-This portion of the application trio focuses on what is necessary to directly manipulate the state of these services on Azure. The collection you are viewing is to document all of the available calls one can make to this service, once it is deployed online. It is intended to be published on Azure Functions, although, it could be changed slightly to work on other serverless platforms, such as AWS Lambda.
+This portion of the application trio focuses on what is necessary to manipulate the state of these services on Azure directly. The collection you are viewing is to document all of the available calls one can make to this service once it is deployed online. It is intended to be published on Azure Functions, although, it could be changed slightly to work on other serverless platforms, such as AWS Lambda.
 
-Please note that this application is designed to create and destroy resources on Azure in a completely self-contained manner. It does not require an administrator to change or manage these resources in any way beyond what is required for the [installation](#Installation). Manually changing these resoures in Azure after the application is running may cause interference, resulting in an application malfunction. If you want to manually manage your own Media Services resources, it is recommended that you create a seperate Media Services instance and leave the one used by this application to run on its own.
+Please note that this application is designed to create and destroy resources on Azure in a completely self-contained manner. It does not require an administrator to change or manage these resources in any way beyond what is required for the [installation](#Installation). Manually changing these resources in Azure after the application is running may cause interference, resulting in an application malfunction. If you want to manually manage your own Media Services resources, it is recommended that you create a separate Media Services instance and leave the one used by this application to run on its own.
 
-The impetus of this application was to create an easy way to spin up Media Services resources on Azure before a broadcast, and spin them down again after the broadcast ends. This helps minimize unnecessary billing on our Azure account and puts the power of service management into the hands of the broadcaster. In an effort to minimize the costs associated with streaming on Azure, note that ALL resources created for live streaming session will be DESTROYED when the application stops them. That includes the [video buffer stored in the archive window](#LIVE_STREAMING_API_ARCHIVE_WINDOW_LENGTH). If you want to retain a copy of your live streaming session, it is recommended that the broadcaster records it locally before shutting down the stream and stopping the media resources.
+The impetus of this application was to create an easy way to spin up Media Services resources on Azure before a broadcast and spin them down again after the show ends. This helps minimize unnecessary billing on our Azure account and puts the power of service management into the hands of the broadcaster. To reduce the costs associated with streaming on Azure, note that ALL resources created for a live streaming session will be DESTROYED when the application stops them. That includes the [video buffer stored in the archive window](#LIVE_STREAMING_API_ARCHIVE_WINDOW_LENGTH). If you want to retain a copy of your live streaming session, it is recommended that the broadcaster records it locally before shutting down the stream and stopping the media resources.
 
 ## Basic Definitions
 
 This project controls two major resource types on Azure Media Services: Streaming Endpoints and Live Events. Here are their definitions:
 
-- **Live Events:** A &quot;channel&quot; which a broadcaster will reuse to publish similar events over and over again.
+- **Live Events:** A channel that a broadcaster will reuse to publish similar events over and over again.
 - **Streaming Endpoint:** The ingest mechanism on Azure Media Services which allows a broadcaster to connect their streaming software of choice, such as [Wirecast](https://www.telestream.net/wirecast/) or [OBS Studio](https://obsproject.com/), and begin sending a live stream.
 
 ## Installation
 
-As mentioned before, this application is intended to run on Azure Functions. Therefore, the instructions are geared toward the process of installating the API there. Overall, there are several major phases to the installation:
+As mentioned before, this application is intended to run on Azure Functions. Therefore, the instructions are geared toward the process of installing the API there. Overall, there are several significant phases to the installation:
 
 1. [Setting up the Media Services resources on Azure](#Setting-up-the-Media-Services-Resources-on-Azure)
 1. [Creating the Azure Functions application](#Creating-the-Azure-Functions-Application)
@@ -52,15 +52,15 @@ Guides for using the API as a [broadcaster](https://github.com/literal-life-chur
 
 ### Setting up the Media Services Resources on Azure
 
-Obviously, to use this application, you'll need an active Azure account. Please [sign up for an account](https://signup.azure.com/), if you don't already have one. Once you have an account set up, [sign into the Azure Portal](https://portal.azure.com/).
+Obviously, to use this application, you'll need an active Azure account. Please [sign up for an account](https://signup.azure.com/) if you don't already have one. Once you have an account set up, [sign in to the Azure Portal](https://portal.azure.com/).
 
 #### Create the Media Service
 
 First, begin by creating the Media Service resource.
 
-1. From the search bar at the top, search for "Media Services", and then select the "Media Services" service
+1. From the search bar at the top, search for "Media Services," and then select the "Media Services" service
 1. Click the Add button to create a new Media Service
-1. Enter an Account Name, select your active Subscription, and a Location
+1. Enter an Account Name, choose your active Subscription, and a Location
 1. For the resource group, create a new one
 1. Click on Storage Account &gt; Create New
 1. Enter a Storage Account Name, and leave all other settings as the default
@@ -115,7 +115,7 @@ An environment variable called `APPINSIGHTS_INSTRUMENTATIONKEY` is automatically
 
 ### Setting up the Environment Variables
 
-All of the application's configuration resides inside of environment variables. Please refer to this table for a complete reference:
+All of the application's configuration resides inside of the environment variables. Please refer to this table for a complete reference:
 
 | Variable                                   | Description                                                                                            |      Required      |
 |--------------------------------------------|--------------------------------------------------------------------------------------------------------|:------------------:|
@@ -135,10 +135,10 @@ All of the application's configuration resides inside of environment variables. 
 | `SENTRY_ENVIRONMENT`                       | Application environment type. Set by you. Examples include `production` or `development`.              | :x:                |
 | `SENTRY_RELEASE`                           | String identifying the application and version number. Set by you, such as `live-streaming-api@1.0.0`. | :x:                |
 
-The sections below show how to obtain the necessary information to populate these environment variables for the application. Please log into the [Azure Portal](https://portal.azure.com/) to find the information shown in these steps. Some of the most important information in the above table is available from a single location in Azure.
+The sections below show how to obtain the necessary information to populate these environment variables for the application. Please log in to the [Azure Portal](https://portal.azure.com/) to find the information shown in these steps. Some of the most important information in the above table is available from a single location in Azure.
 
 1. From the search bar at the top, search for "Media Services", and then select the "Media Services" service
-1. In table of available Media Services, select the service to use
+1. In the table of available Media Services, select the service to use
 1. In the panel on the left, select API Access
 1. Under the Manage Your AAD App and Secret section, for the AAD App, click Create New &gt; Enter a Name &gt; click the Create button
 1. Once the application is created, for the Secret, click Create New &gt; Enter a Description and Expiration &gt; click the Create button
@@ -171,7 +171,7 @@ This environment variable is set automatically by the Azure Portal when followin
 
 #### LIVE_STREAMING_API_ARCHIVE_WINDOW_LENGTH
 
-This value is completely up you. Note that values less than `3` minutes are not allowed. The value can be as large as `1500` (25 hours).
+This value is completely up to you. Note that values less than `3` minutes are not allowed. The value can be as large as `1500` (25 hours).
 
 #### All Webhooks
 
@@ -191,7 +191,7 @@ The easiest way to deploy this application is to clone this repository and publi
 
 1. Clone this repository
 1. Open the solution in Visual Studio
-1. In the Solution pane, right click on the `api` project &gt; Publish
+1. In the Solution pane, right-click on the `api` project &gt; Publish
 1. In the Publish window, select Azure as the publish target
 1. If necessary, log into your Azure account
 1. Select the Function App which was created above and click Finish
@@ -205,9 +205,9 @@ This application is able to send out events for four different cases. Those case
 1. **Azure Media Services Stop Success:** Whenever all of the steps to stop one or more Live Event(s) and a Streaming Endpoint succeed. This does not indicate that all services are stopped (since they must have been in the proper state beforehand to stop), but rather that the process finished without an error.
 1. **Azure Media Services Stop Failure:** Similar to the above condition, except the application stopped partway through because of an error. If Sentry is configured, the error will be reported there.
 
-The application is designed to be flexible enough to send the webhook in a variety of ways, so that it can accomodate whatever the expectations of the receiving application may be.
+The application is designed to be flexible enough to send the webhook in a variety of ways so that it can accommodate whatever the expectations of the receiving application may be.
 
-For example, a simplistic setup may set all four webhook environment variables to different URLs, one for each case. Therefore, the consuming application can easily determine what event occured based on the incoming webook. A more complex setup may point all of the variables to the same URL and have the receiving application determine what happened based on the data sent in the request.
+For example, a simple setup may set all four webhook environment variables to different URLs, one for each case. Therefore, the consuming application can easily determine what event occurred based on the incoming webhook. A more sophisticated setup may point all of the variables to the same URL and have the receiving application determine what happened based on the data sent in the request.
 
 This application sends the relevant data in two ways, regardless of how the webhooks are configured. All requests are made as `POST` requests, and thus include a body like this:
 
@@ -227,14 +227,14 @@ https://www.wwbhook.com/?action=start|stop&status=error|running|starting|stoppin
 
 ## Statuses
 
-Aside from turning on and off the resources themselves, status reports are perhaps the most important aspect of this application. Since the state of each service decides whether or not your Azure account is billed, it is very important to have a reliable way of knowing their curret state. This section summarizes what the possible statuses are for each resource.
+Aside from turning on and off the resources themselves, status reports are perhaps the most important aspect of this application. Since the state of each service decides whether or not your Azure account is billed, it is very important to have a reliable way of knowing their current state. This section summarizes what the possible statuses are for each resource.
 
-Each status has a `type` assocaited with it. Here are the types:
+Each status has a `type` associated with it. Here are the types:
 
 - **Stable:** The status will not change at all unless explicitly instructed to do so by the user.
 - **Transient:** The current status is only temporary and is expected to change shortly
 
-For example, since it make take a moment to start any given resource, the API may show a resource as `starting` (transient state) until it starts completely and shows as `running` (stable state).
+For example, since it may take a moment to start any given resource, the API may show a resource as `starting` (transient state) until it starts completely and shows as `running` (stable state).
 
 ### Streaming Endpoint
 

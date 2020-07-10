@@ -3,7 +3,7 @@ using Sentry;
 using Sentry.Protocol;
 using System;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services.common
+namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
 {
     public class LoggerService : ICommonService
     {

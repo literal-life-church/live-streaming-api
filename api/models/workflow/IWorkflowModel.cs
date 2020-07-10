@@ -1,4 +1,4 @@
-﻿namespace LiteralLifeChurch.LiveStreamingApi.models.workflow
+﻿namespace LiteralLifeChurch.LiveStreamingApi.Models.Workflow
 {
     public interface IWorkflowModel : IModel
     {

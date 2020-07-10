@@ -1,4 +1,4 @@
-﻿namespace LiteralLifeChurch.LiveStreamingApi.models
+﻿namespace LiteralLifeChurch.LiveStreamingApi.Models
 {
     public interface IModel
     {

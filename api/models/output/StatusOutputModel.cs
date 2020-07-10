@@ -1,9 +1,9 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.enums;
+﻿using LiteralLifeChurch.LiveStreamingApi.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
 
-namespace LiteralLifeChurch.LiveStreamingApi.models.output
+namespace LiteralLifeChurch.LiveStreamingApi.Models.Output
 {
     public class StatusOutputModel : IOutputModel
     {

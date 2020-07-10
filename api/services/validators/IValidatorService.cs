@@ -1,4 +1,4 @@
-﻿namespace LiteralLifeChurch.LiveStreamingApi.services.validators
+﻿namespace LiteralLifeChurch.LiveStreamingApi.Services.Validators
 {
     public interface IValidatorService : IService
     {

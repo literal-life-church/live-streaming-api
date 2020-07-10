@@ -1,4 +1,4 @@
-﻿namespace LiteralLifeChurch.LiveStreamingApi.exceptions
+﻿namespace LiteralLifeChurch.LiveStreamingApi.Exceptions
 {
     public class ServiceValidationException : RequestException
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LiteralLifeChurch.LiveStreamingApi.models.input
+namespace LiteralLifeChurch.LiveStreamingApi.Models.Input
 {
     public class LocatorsInputModel : IInputModel
     {

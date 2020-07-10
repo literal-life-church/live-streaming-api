@@ -1,12 +1,12 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
-using LiteralLifeChurch.LiveStreamingApi.models.input;
-using LiteralLifeChurch.LiveStreamingApi.services.validators;
+﻿using LiteralLifeChurch.LiveStreamingApi.Models.Bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.Models.Input;
+using LiteralLifeChurch.LiveStreamingApi.Services.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Management.Media;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services.common
+namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
 {
     public class InputRequestService : ICommonService
     {

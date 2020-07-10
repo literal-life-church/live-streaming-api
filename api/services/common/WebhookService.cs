@@ -1,6 +1,6 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.enums;
-using LiteralLifeChurch.LiveStreamingApi.exceptions;
-using LiteralLifeChurch.LiveStreamingApi.models.output;
+﻿using LiteralLifeChurch.LiveStreamingApi.Enums;
+using LiteralLifeChurch.LiveStreamingApi.Exceptions;
+using LiteralLifeChurch.LiveStreamingApi.Models.Output;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
@@ -9,7 +9,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services.common
+namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
 {
     public static class WebhookService
     {

@@ -1,4 +1,4 @@
-﻿namespace LiteralLifeChurch.LiveStreamingApi.controllers
+﻿namespace LiteralLifeChurch.LiveStreamingApi.Controllers
 {
     public interface IController
     {

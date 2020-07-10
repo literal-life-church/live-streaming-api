@@ -1,8 +1,8 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
-using LiteralLifeChurch.LiveStreamingApi.services.common;
+﻿using LiteralLifeChurch.LiveStreamingApi.Models.Bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.Services.Common;
 using System;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services
+namespace LiteralLifeChurch.LiveStreamingApi.Services
 {
     public static class ConfigurationService
     {

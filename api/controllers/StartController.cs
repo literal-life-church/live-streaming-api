@@ -1,16 +1,16 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.enums;
-using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
-using LiteralLifeChurch.LiveStreamingApi.models.input;
-using LiteralLifeChurch.LiveStreamingApi.models.output;
-using LiteralLifeChurch.LiveStreamingApi.models.workflow;
-using LiteralLifeChurch.LiveStreamingApi.services.common;
+﻿using LiteralLifeChurch.LiveStreamingApi.Enums;
+using LiteralLifeChurch.LiveStreamingApi.Models.Bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.Models.Input;
+using LiteralLifeChurch.LiveStreamingApi.Models.Output;
+using LiteralLifeChurch.LiveStreamingApi.Models.Workflow;
+using LiteralLifeChurch.LiveStreamingApi.Services.Common;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LiteralLifeChurch.LiveStreamingApi.controllers
+namespace LiteralLifeChurch.LiveStreamingApi.Controllers
 {
     public class StartController : IController
     {

@@ -2,7 +2,7 @@
 using System;
 using System.Net;
 
-namespace LiteralLifeChurch.LiveStreamingApi.exceptions
+namespace LiteralLifeChurch.LiveStreamingApi.Exceptions
 {
     public abstract class AppException : Exception
     {

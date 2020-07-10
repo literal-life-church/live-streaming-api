@@ -31,7 +31,7 @@ namespace LiteralLifeChurch.LiveStreamingApi
 
         [FunctionName("Stop")]
         public async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "broadcaster/stop")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "broadcaster")] HttpRequest req,
             ILogger log)
         {
             TelemetryClient.TrackEvent("Stop");

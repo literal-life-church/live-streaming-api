@@ -22,11 +22,11 @@ The Live Streaming API is a subset of a three-part application designed to contr
 2.  **[Live Streaming Controller](https://github.com/literal-life-church/live-streaming-controller):** A simple tool for the event broadcaster to interface with the Live Streaming API
 3.  **[Stream Switch](https://github.com/literal-life-church/stream-switch):** A front-end, viewer application for viewing one or more live streams on a website
 
-In production, an event broadcaster would use the Live Streaming Controller as a front-end application to call the `/start`, `/stop`, and `/status` endpoints on the Live Streaming API to respectively start the streaming services at the beginning of an event, stop the services at the end, and read the status of these resources at any point before, during, or after. All of these calls are authenticated, since they can reveal sensitive information about the state of your resources, or result in a state change, and thus a billing change, on the broadcaster's Azure account.
+In production, an event broadcaster would use the Live Streaming Controller as a front-end application to make a `POST` call to the `/broadcaster` endpoint, a `DELETE` call to the `/broadcaster`, and a `GET` call to the `/broadcaster` endpoint on the Live Streaming API to respectively start the streaming services at the beginning of an event, stop the services at the end, and read the status of these resources at any point before, during, or after. All of these calls are authenticated, since they can reveal sensitive information about the state of your resources, or result in a state change, and thus a billing change, on the broadcaster's Azure account.
 
-A viewer would then go to a website that has the Stream Switch installed to view the event. That application calls the `/locators` endpoint to fetch the streaming URLs from Azure to play inside of an HTML5 video player on the web. Since this endpoint intended for public consumption, it is the only endpoint in the application which is not authenticated.
+A viewer would then go to a website which has the Stream Switch installed to view the event. That application calls the `/locators` endpoint to fetch the streaming URLs from Azure to play inside of an HTML5 video player on the web. Since this endpoint intended for public consumption, it is the only endpoint in the application which is not authenticated.
 
-This portion of the application trio focuses on what is necessary to manipulate the state of these services on Azure directly. The collection you are viewing is to document all of the available calls one can make to this service once it is deployed online. It is intended to be published on Azure Functions, although, it could be changed slightly to work on other serverless platforms, such as AWS Lambda.
+This portion of the application trio focuses on what is necessary to directly manipulate the state of these services on Azure. The collection you are viewing is to document all of the available calls one can make to this service, once it is deployed online. It is intended to be published on Azure Functions, although, it could be changed slightly to work on other serverless platforms, such as AWS Lambda.
 
 Please note that this application is designed to create and destroy resources on Azure in a completely self-contained manner. It does not require an administrator to change or manage these resources in any way beyond what is required for the [installation](#Installation). Manually changing these resources in Azure after the application is running may cause interference, resulting in an application malfunction. If you want to manually manage your own Media Services resources, it is recommended that you create a separate Media Services instance and leave the one used by this application to run on its own.
 
@@ -128,10 +128,10 @@ All of the application's configuration resides inside of the environment variabl
 | `LIVE_STREAMING_API_RESOURCE_GROUP`        | Resource group under which all of the streaming endpoints and live events reside on Azure              | :heavy_check_mark: |
 | `LIVE_STREAMING_API_SUBSCRIPTION_ID`       | ID of the billing account which is paying for the Azure subscription                                   | :heavy_check_mark: |
 | `LIVE_STREAMING_API_TENANT_ID`             | Domain hooked up to Azure                                                                              | :heavy_check_mark: |
-| `LIVE_STREAMING_API_WEBHOOK_START_FAILURE` | Webhook to call when a request to the `/start` endpoint fails                                          | :x:                |
-| `LIVE_STREAMING_API_WEBHOOK_START_SUCCESS` | Webhook to call when a request to the `/start` endpoint succeeds                                       | :x:                |
-| `LIVE_STREAMING_API_WEBHOOK_STOP_FAILURE`  | Webhook to call when a request to the `/stop` endpoint fails                                           | :x:                |
-| `LIVE_STREAMING_API_WEBHOOK_STOP_SUCCESS`  | Webhook to call when a request to the `/stop` endpoint succeeds                                        | :x:                |
+| `LIVE_STREAMING_API_WEBHOOK_START_FAILURE` | Webhook to call when a POST request to the `/broadcaster` endpoint fails                               | :x:                |
+| `LIVE_STREAMING_API_WEBHOOK_START_SUCCESS` | Webhook to call when a POST request to the `/broadcaster` endpoint succeeds                            | :x:                |
+| `LIVE_STREAMING_API_WEBHOOK_STOP_FAILURE`  | Webhook to call when a DELETE request to the `/broadcaster` endpoint fails                             | :x:                |
+| `LIVE_STREAMING_API_WEBHOOK_STOP_SUCCESS`  | Webhook to call when a DELETE request to the `/broadcaster` endpoint succeeds                          | :x:                |
 | `SENTRY_DSN`                               | URL to send crashes and telemetry to Sentry                                                            | :x:                |
 | `SENTRY_ENVIRONMENT`                       | Application environment type. Set by you. Examples include `production` or `development`.              | :x:                |
 | `SENTRY_RELEASE`                           | String identifying the application and version number. Set by you, such as `live-streaming-api@1.0.0`. | :x:                |
@@ -199,7 +199,7 @@ The easiest way to deploy this application is to clone this repository and publi
 
 ### Authenticating with the Application
 
-For security purposes, the `/start`, `/stop`, and `/status` endpoints require an API key to access. This key is generated and managed by Azure.
+For security purposes, all variants of the `/broadcaster` endpoint requires an API key to access. This key is generated and managed by Azure.
 
 1.  In the Azure Portal, select the newly created Function App
 2.  In the panel on the left, select App Keys &gt; New Host Key

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LiteralLifeChurch.LiveStreamingApi.models.bootstrapping
+namespace LiteralLifeChurch.LiveStreamingApi.Models.Bootstrapping
 {
     public class ConfigurationModel : IBootstrappingModel
     {

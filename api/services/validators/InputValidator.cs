@@ -1,8 +1,8 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.exceptions;
+﻿using LiteralLifeChurch.LiveStreamingApi.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services.validators
+namespace LiteralLifeChurch.LiveStreamingApi.Services.Validators
 {
     public static class InputValidator
     {

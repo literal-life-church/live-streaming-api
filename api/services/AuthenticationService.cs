@@ -1,12 +1,12 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
-using LiteralLifeChurch.LiveStreamingApi.services.common;
+﻿using LiteralLifeChurch.LiveStreamingApi.Models.Bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.Services.Common;
 using Microsoft.Azure.Management.Media;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using Microsoft.Rest.Azure.Authentication;
 using System.Threading.Tasks;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services
+namespace LiteralLifeChurch.LiveStreamingApi.Services
 {
     public static class AuthenticationService
     {

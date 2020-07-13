@@ -1,4 +1,4 @@
-﻿namespace LiteralLifeChurch.LiveStreamingApi.services.common
+﻿namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
 {
     public interface ICommonService : IService
     {

@@ -1,6 +1,6 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.exceptions;
-using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
-using LiteralLifeChurch.LiveStreamingApi.models.input;
+﻿using LiteralLifeChurch.LiveStreamingApi.Exceptions;
+using LiteralLifeChurch.LiveStreamingApi.Models.Bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.Models.Input;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
 using Microsoft.Rest.Azure;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services.validators
+namespace LiteralLifeChurch.LiveStreamingApi.Services.Validators
 {
     public class ServiceValidator : IValidatorService
     {

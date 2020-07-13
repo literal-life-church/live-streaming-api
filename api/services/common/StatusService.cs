@@ -1,7 +1,7 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.enums;
-using LiteralLifeChurch.LiveStreamingApi.models.bootstrapping;
-using LiteralLifeChurch.LiveStreamingApi.models.input;
-using LiteralLifeChurch.LiveStreamingApi.models.output;
+﻿using LiteralLifeChurch.LiveStreamingApi.Enums;
+using LiteralLifeChurch.LiveStreamingApi.Models.Bootstrapping;
+using LiteralLifeChurch.LiveStreamingApi.Models.Input;
+using LiteralLifeChurch.LiveStreamingApi.Models.Output;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
 using Microsoft.Rest.Azure;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services.common
+namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
 {
     public class StatusService : ICommonService
     {

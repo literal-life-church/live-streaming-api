@@ -1,12 +1,12 @@
-﻿using LiteralLifeChurch.LiveStreamingApi.exceptions;
-using LiteralLifeChurch.LiveStreamingApi.models.output;
+﻿using LiteralLifeChurch.LiveStreamingApi.Exceptions;
+using LiteralLifeChurch.LiveStreamingApi.Models.Output;
 using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 
-namespace LiteralLifeChurch.LiveStreamingApi.services.responses
+namespace LiteralLifeChurch.LiveStreamingApi.Services.Responses
 {
     public static class ErrorResponseService
     {

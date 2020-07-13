@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace LiteralLifeChurch.LiveStreamingApi.models.output
+namespace LiteralLifeChurch.LiveStreamingApi.Models.Output
 {
     public class LocatorsOutputModel : IOutputModel
     {

@@ -1,4 +1,7 @@
 <div align="center">
+<img src="./.docs/logo.png" width="128px" />
+<br>
+
 <h1>Live Streaming API<br/><sub>Control one or more live streaming events on Azure Media Services</sub></h1>
 
 <strong>[:one: API](https://github.com/literal-life-church/live-streaming-api/)</strong> |
@@ -9,7 +12,11 @@
 "Streamlining the process to get your events online."
 ```
 
-[![Build Status](https://dev.azure.com/literal-life-church/live-streaming-api/_apis/build/status/literal-life-church.live-streaming-api?branchName=develop)](https://dev.azure.com/literal-life-church/live-streaming-api/_build/latest?definitionId=1&branchName=develop) [![Maintainability](https://api.codeclimate.com/v1/badges/094efdcf9b724ad8871f/maintainability)](https://codeclimate.com/github/literal-life-church/live-streaming-api/maintainability) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/60a578f696cb4313849fef9a0589be78)](https://www.codacy.com/gh/literal-life-church/live-streaming-api) [![Postman Documentation](https://img.shields.io/badge/Postman-Documentation%20Available-orange?logo=postman)](https://documenter.getpostman.com/view/3329098/SzzkddRA) ![Live Streaming API Releases](https://img.shields.io/github/v/release/literal-life-church/live-streaming-api?label=Releases)
+[![Build Status](https://dev.azure.com/literal-life-church/live-streaming-api/_apis/build/status/literal-life-church.live-streaming-api?branchName=develop)](https://dev.azure.com/literal-life-church/live-streaming-api/_build/latest?definitionId=1&branchName=develop)
+[![Maintainability](https://api.codeclimate.com/v1/badges/094efdcf9b724ad8871f/maintainability)](https://codeclimate.com/github/literal-life-church/live-streaming-api/maintainability)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/60a578f696cb4313849fef9a0589be78)](https://www.codacy.com/gh/literal-life-church/live-streaming-api)
+[![Postman Documentation](https://img.shields.io/badge/Postman-Documentation%20Available-orange?logo=postman)](https://documenter.getpostman.com/view/3329098/SzzkddRA)
+[![Live Streaming API Releases](https://img.shields.io/github/v/release/literal-life-church/live-streaming-api?label=Releases)](https://github.com/literal-life-church/live-streaming-api/releases)
 
 <hr />
 </div>
@@ -31,6 +38,14 @@ This portion of the application trio focuses on what is necessary to directly ma
 Please note that this application is designed to create and destroy resources on Azure in a completely self-contained manner. It does not require an administrator to change or manage these resources in any way beyond what is required for the [installation](#Installation). Manually changing these resources in Azure after the application is running may cause interference, resulting in an application malfunction. If you want to manually manage your own Media Services resources, it is recommended that you create a separate Media Services instance and leave the one used by this application to run on its own.
 
 The impetus of this application was to create an easy way to spin up Media Services resources on Azure before a broadcast and spin them down again after the show ends. This helps minimize unnecessary billing on our Azure account and puts the power of service management into the hands of the broadcaster. To reduce the costs associated with streaming on Azure, note that ALL resources created for a live streaming session will be DESTROYED when the application stops them. That includes the [video buffer stored in the archive window](#LIVE_STREAMING_API_ARCHIVE_WINDOW_LENGTH). If you want to retain a copy of your live streaming session, it is recommended that the broadcaster records it locally before shutting down the stream and stopping the media resources.
+
+It is also important to note that this application does not support any kind of DRM streaming. All streams must be clear play, non-DRM protected streams. Additional CDNs and media reserved units have not been explicitly tested to work this application, but they should work properly in conjunction with this application.
+
+---
+
+<div align="center">
+<img src="./.docs/icons/documentation.png" style="padding: 32px 16px 16px 16px;" width="128px" />
+</div>
 
 ## Basic Definitions
 
@@ -208,6 +223,18 @@ For security purposes, all variants of the `/broadcaster` endpoint requires an A
 
 When making calls to any of the above three endpoints, make sure to append `code=your-key-here` as a query parameter to the call to authenticate your request.
 
+### Enable CORS
+
+Cross-Origin Resource Sharing (CORS) allows JavaScript to make API calls to this application from a seperate domain. This feature must be explictly enabled in the Azure Portal to work properly.
+
+Note that this section is only necessary to get the [Stream Switch](https://github.com/literal-life-church/stream-switch) working on a website. The [Live Streaming Controller](https://github.com/literal-life-church/live-streaming-controller) does not require a change to the CORS settings to work properly.
+
+1.  In the Azure Portal, select the newly created Function App
+2.  In the panel on the left, select CORS
+3.  Ensure the Enable Access-Control-Allow-Credentials checkbox is unchecked
+4.  In the Allowed Origins, list enter `*`, as a wildcard match for all domains. Alternatively, if you have a specific domain or list of domains from which your calls will come, you can enter them individually here.
+5.  Save your changes
+
 ### Set up the Streaming Software
 
 Now that all of the resources are in place on Azure, the streaming software can be configured. Common examples of streaming software include [Wirecast](https://www.telestream.net/wirecast/) or [OBS Studio](https://obsproject.com/). Both pieces of software require a streaming URL to which the stream is sent.
@@ -303,3 +330,37 @@ Since there are several steps to determine how to collectively summarize the sta
 | Stopping | Transient | Either the Streaming Endpoint or ANY Live Event is in the stopping state                                                    |
 
 Notice how the `scaling` and `deleting` statuses are omitted from the summary, since they effectively map to `running` and `stopped`, respectively.
+
+<br><br>
+
+---
+
+<div align="center">
+<br/><br/>
+<img src="./.docs/church.png" height="60px"/>
+<br/>
+<sub><i>This application was inspired by a need for the live streaming pipeline we use at <a href="https://www.literallife.church/" target="_blank">Literal Life Church</a></i></sub>
+<br><br>
+
+Contributors:<br><br>
+
+[![](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/images/0)](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/links/0)
+[![](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/images/1)](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/links/1)
+[![](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/images/2)](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/links/2)
+[![](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/images/3)](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/links/3)
+[![](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/images/4)](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/links/4)
+[![](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/images/5)](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/links/5)
+[![](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/images/6)](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/links/6)
+[![](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/images/7)](https://sourcerer.io/fame/oliverspryn/literal-life-church/live-streaming-api/links/7)
+
+<br/>
+<img alt="Language Count" src="https://img.shields.io/github/languages/count/literal-life-church/live-streaming-api?label=Languages"/>
+<img alt="GitHub contributors" src="https://img.shields.io/github/contributors/literal-life-church/live-streaming-api?label=Contributors">
+<img alt="GitHub Code Size in Bytes" src="https://img.shields.io/github/languages/code-size/literal-life-church/live-streaming-api?label=Code%20Size">
+<img alt="GitHub Repository Size" src="https://img.shields.io/github/repo-size/literal-life-church/live-streaming-api?label=Repository%20Size">
+<br/>
+<br/>
+<img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/literal-life-church/live-streaming-api?label=Last%20Commit">
+<img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/literal-life-church/live-streaming-api?label=Release%20Date">
+<img alt="Hit Counter" src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fliteral-life-church%2Flive-streaming-api">
+</div>

@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
-    public class Locators
+    public static class Locators
     {
         [Function("Locators")]
         public static async Task<HttpResponseData> Run(

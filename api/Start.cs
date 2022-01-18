@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
-    public class Start
+    public static class Start
     {
         [Function("Start")]
         public static async Task<HttpResponseData> Run(

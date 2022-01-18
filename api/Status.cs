@@ -6,65 +6,54 @@ using LiteralLifeChurch.LiveStreamingApi.Models.Output;
 using LiteralLifeChurch.LiveStreamingApi.Services;
 using LiteralLifeChurch.LiveStreamingApi.Services.Common;
 using LiteralLifeChurch.LiveStreamingApi.Services.Responses;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Management.Media;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
     public class Status
     {
-        private readonly TelemetryClient TelemetryClient;
-
-        public Status(TelemetryConfiguration telemetryConfiguration)
+        [Function("Status")]
+        public static async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "broadcaster")] HttpRequestData request,
+            FunctionContext executionContext)
         {
-            TelemetryClient = new TelemetryClient(telemetryConfiguration);
-        }
+            ILogger logger = executionContext.GetLogger("Status");
 
-        [FunctionName("Status")]
-        public async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "broadcaster")] HttpRequest req,
-            ILogger log)
-        {
-            TelemetryClient.TrackEvent("Status");
-
-            using (LoggerService.Init(log))
+            using (LoggerService.Init(logger))
             {
                 try
                 {
                     ConfigurationModel config = ConfigurationService.GetConfiguration();
                     AzureMediaServicesClient client = await AuthenticationService.GetClientAsync(config);
 
-                    InputRequestService inputRequestService = new InputRequestService(client, config);
-                    StatusController statusController = new StatusController(client, config);
+                    InputRequestService inputRequestService = new(client, config);
+                    StatusController statusController = new(client, config);
 
-                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
+                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(request);
                     StatusOutputModel outputModel = await statusController.GetStatusAsync(inputModel);
 
-                    return SuccessResponseService.CreateResponse(outputModel);
+                    return await SuccessResponseService.CreateResponse(request, outputModel);
                 }
                 catch (AppException e)
                 {
-                    return ReportError(e);
+                    return await ReportError(request, e);
                 }
                 catch (Exception e)
                 {
-                    return ReportError(e);
+                    return await ReportError(request, e);
                 }
             }
         }
 
-        private static HttpResponseMessage ReportError(Exception exception)
+        private static async Task<HttpResponseData> ReportError(HttpRequestData request, Exception exception)
         {
             LoggerService.CaptureException(exception);
-            return ErrorResponseService.CreateResponse(exception);
+            return await ErrorResponseService.CreateResponse(request, exception);
         }
     }
 }

@@ -1,26 +1,23 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.Models.Output;
-using Newtonsoft.Json;
+using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
-using System.Net.Http;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi.Services.Responses
 {
     public static class SuccessResponseService
     {
-        public static HttpResponseMessage CreateResponse<Output>(Output response) where Output : IOutputModel
+        public static async Task<HttpResponseData> CreateResponse<Output>(HttpRequestData request, Output output) where Output : IOutputModel
         {
-            return CreateResponse(response, HttpStatusCode.OK);
+            return await CreateResponse(request, output, HttpStatusCode.OK);
         }
 
-        public static HttpResponseMessage CreateResponse<Output>(Output response, HttpStatusCode statusCode) where Output : IOutputModel
+        public static async Task<HttpResponseData> CreateResponse<Output>(HttpRequestData request, Output output, HttpStatusCode statusCode) where Output : IOutputModel
         {
-            string serializedJson = JsonConvert.SerializeObject(response);
+            HttpResponseData response = request.CreateResponse(statusCode);
+            await response.WriteAsJsonAsync(output, statusCode);
 
-            return new HttpResponseMessage(statusCode)
-            {
-                Content = new StringContent(serializedJson, Encoding.UTF8, "application/json")
-            };
+            return response;
         }
     }
 }

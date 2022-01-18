@@ -32,7 +32,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.Services
             Uri stopSuccess = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(WebhookStopSuccess)) ?
                 new Uri(Environment.GetEnvironmentVariable(WebhookStopSuccess)) : null;
 
-            ConfigurationModel model = new ConfigurationModel
+            ConfigurationModel model = new()
             {
                 AccountName = Environment.GetEnvironmentVariable(AccountName),
                 ArchiveWindowLength = Convert.ToInt32(Environment.GetEnvironmentVariable(ArchiveWindowLengthName)),

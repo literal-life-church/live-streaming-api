@@ -7,37 +7,26 @@ using LiteralLifeChurch.LiveStreamingApi.Models.Output;
 using LiteralLifeChurch.LiveStreamingApi.Services;
 using LiteralLifeChurch.LiveStreamingApi.Services.Common;
 using LiteralLifeChurch.LiveStreamingApi.Services.Responses;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Management.Media;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
     public class Start
     {
-        private readonly TelemetryClient TelemetryClient;
-
-        public Start(TelemetryConfiguration telemetryConfiguration)
+        [Function("Start")]
+        public static async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "broadcaster")] HttpRequestData request,
+            FunctionContext executionContext)
         {
-            TelemetryClient = new TelemetryClient(telemetryConfiguration);
-        }
+            ILogger logger = executionContext.GetLogger("Stop");
 
-        [FunctionName("Start")]
-        public async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "broadcaster")] HttpRequest req,
-            ILogger log)
-        {
-            TelemetryClient.TrackEvent("Start");
-
-            using (LoggerService.Init(log))
+            using (LoggerService.Init(logger))
             {
                 ConfigurationModel config = ConfigurationService.GetConfiguration();
 
@@ -45,31 +34,31 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 {
                     AzureMediaServicesClient client = await AuthenticationService.GetClientAsync(config);
 
-                    InputRequestService inputRequestService = new InputRequestService(client, config);
-                    StartController startController = new StartController(client, config);
+                    InputRequestService inputRequestService = new(client, config);
+                    StartController startController = new(client, config);
 
-                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
+                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(request);
                     StatusChangeOutputModel outputModel = await startController.StartServicesAsync(inputModel);
 
                     await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Start, outputModel.Status.Summary.Name);
-                    return SuccessResponseService.CreateResponse(outputModel, HttpStatusCode.Created);
+                    return await SuccessResponseService.CreateResponse(request, outputModel, HttpStatusCode.Created);
                 }
                 catch (AppException e)
                 {
-                    return await ReportErrorAsync(config, e);
+                    return await ReportErrorAsync(request, config, e);
                 }
                 catch (Exception e)
                 {
-                    return await ReportErrorAsync(config, e);
+                    return await ReportErrorAsync(request, config, e);
                 }
             }
         }
 
-        private static async Task<HttpResponseMessage> ReportErrorAsync(ConfigurationModel config, Exception exception)
+        private static async Task<HttpResponseData> ReportErrorAsync(HttpRequestData request, ConfigurationModel config, Exception exception)
         {
             LoggerService.CaptureException(exception);
             await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
-            return ErrorResponseService.CreateResponse(exception);
+            return await ErrorResponseService.CreateResponse(request, exception);
         }
     }
 }

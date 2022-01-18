@@ -7,36 +7,25 @@ using LiteralLifeChurch.LiveStreamingApi.Models.Output;
 using LiteralLifeChurch.LiveStreamingApi.Services;
 using LiteralLifeChurch.LiveStreamingApi.Services.Common;
 using LiteralLifeChurch.LiveStreamingApi.Services.Responses;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Management.Media;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
-    public class Stop
+    public static class Stop
     {
-        private readonly TelemetryClient TelemetryClient;
-
-        public Stop(TelemetryConfiguration telemetryConfiguration)
+        [Function("Stop")]
+        public static async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "broadcaster")] HttpRequestData request,
+            FunctionContext executionContext)
         {
-            TelemetryClient = new TelemetryClient(telemetryConfiguration);
-        }
+            ILogger logger = executionContext.GetLogger("Stop");
 
-        [FunctionName("Stop")]
-        public async Task<HttpResponseMessage> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = "broadcaster")] HttpRequest req,
-            ILogger log)
-        {
-            TelemetryClient.TrackEvent("Stop");
-
-            using (LoggerService.Init(log))
+            using (LoggerService.Init(logger))
             {
                 ConfigurationModel config = ConfigurationService.GetConfiguration();
 
@@ -44,31 +33,31 @@ namespace LiteralLifeChurch.LiveStreamingApi
                 {
                     AzureMediaServicesClient client = await AuthenticationService.GetClientAsync(config);
 
-                    InputRequestService inputRequestService = new InputRequestService(client, config);
-                    StopController stopController = new StopController(client, config);
+                    InputRequestService inputRequestService = new(client, config);
+                    StopController stopController = new(client, config);
 
-                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(req);
+                    InputRequestModel inputModel = await inputRequestService.GetInputRequestModelAsync(request);
                     StatusChangeOutputModel outputModel = await stopController.StopServicesAsync(inputModel);
 
                     await WebhookService.CallWebhookAsync(config.WebhookStartSuccess, ActionEnum.Stop, outputModel.Status.Summary.Name);
-                    return SuccessResponseService.CreateResponse(outputModel);
+                    return await SuccessResponseService.CreateResponse(request, outputModel);
                 }
                 catch (AppException e)
                 {
-                    return await ReportErrorAsync(config, e);
+                    return await ReportErrorAsync(request, config, e);
                 }
                 catch (Exception e)
                 {
-                    return await ReportErrorAsync(config, e);
+                    return await ReportErrorAsync(request, config, e);
                 }
             }
         }
 
-        private static async Task<HttpResponseMessage> ReportErrorAsync(ConfigurationModel config, Exception exception)
+        private static async Task<HttpResponseData> ReportErrorAsync(HttpRequestData request, ConfigurationModel config, Exception exception)
         {
             LoggerService.CaptureException(exception);
             await WebhookService.CallWebhookAsync(config.WebhookStartFailure, ActionEnum.Start, ResourceStatusEnum.Error);
-            return ErrorResponseService.CreateResponse(exception);
+            return await ErrorResponseService.CreateResponse(request, exception);
         }
     }
 }

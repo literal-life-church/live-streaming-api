@@ -1,16 +1,15 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.Exceptions;
 using LiteralLifeChurch.LiveStreamingApi.Models.Output;
-using Newtonsoft.Json;
+using Microsoft.Azure.Functions.Worker.Http;
 using System;
 using System.Net;
-using System.Net.Http;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi.Services.Responses
 {
     public static class ErrorResponseService
     {
-        public static HttpResponseMessage CreateResponse(Exception error)
+        public static async Task<HttpResponseData> CreateResponse(HttpRequestData request, Exception error)
         {
             ErrorModel model;
 
@@ -37,12 +36,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.Services.Responses
                 };
             }
 
-            string serializedJson = JsonConvert.SerializeObject(model);
+            HttpResponseData response = request.CreateResponse(model.Status);
+            await response.WriteAsJsonAsync(model, model.Status);
 
-            return new HttpResponseMessage(model.Status)
-            {
-                Content = new StringContent(serializedJson, Encoding.UTF8, "application/json")
-            };
+            return response;
         }
     }
 }

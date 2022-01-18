@@ -1,43 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AzureFunctionsVersion>v2</AzureFunctionsVersion>
-    <PackageId>live-streaming-api</PackageId>
-    <Authors>Oliver Spryn</Authors>
-    <Product>Live Streaming API</Product>
-    <Company>Literal Life Church</Company>
-    <Description>A minimal API wrapper running on Azure Functions to enable, disable, and read the status of one or more live streaming sessions with Azure Media Services</Description>
-    <Copyright>Copyright © 2020</Copyright>
-    <PackageProjectUrl>https://github.com/literal-life-church/live-streaming-api</PackageProjectUrl>
-    <RepositoryType>Git</RepositoryType>
-    <RepositoryUrl>https://github.com/literal-life-church/live-streaming-api</RepositoryUrl>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageTags>API, API Wrapper, Audio, Azure, Azure Functions, Azure Media Services, Live Streaming, Streaming, Video</PackageTags>
+    <TargetFramework>net5.0</TargetFramework>
+    <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <OutputType>Exe</OutputType>
     <RootNamespace>LiteralLifeChurch.LiveStreamingApi</RootNamespace>
+    <PackageId>live-streaming-api</PackageId>
     <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Authors>Oliver Spryn</Authors>
+    <Company>Literal Life Church</Company>
+    <Product>Live Streaming API</Product>
+    <Description>A minimal API wrapper running on Azure Functions to enable, disable, and read the status of one or more live streaming sessions with Azure Media Services</Description>
+    <Copyright>Copyright © 2021</Copyright>
+    <PackageProjectUrl>https://gitlab.com/literal-life-church/live-streaming-api</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>API; API Wrapper; Audio; Azure; Azure Functions; Azure Media Services; Live Streaming; Streaming; Video</PackageTags>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-    <PackageReference Include="Microsoft.Azure.Management.Media" Version="2.0.4" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="3.0.16" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="3.0.6" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.2" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Host.Storage" Version="3.0.14" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Logging.ApplicationInsights" Version="3.0.14" />
-    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.7" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.7" />
-    <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.4.0" />
-    <PackageReference Include="RestSharp" Version="106.11.4" />
-    <PackageReference Include="Sentry" Version="2.1.1" />
-    <PackageReference Include="Sentry.AspNetCore" Version="2.1.1" />
-    <PackageReference Include="Sentry.Extensions.Logging" Version="2.1.1" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Net.Security" Version="4.3.2" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.3.0" OutputItemType="Analyzer" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
+    <PackageReference Include="Microsoft.Azure.Management.Media" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.4.1" />
+    <PackageReference Include="RestSharp" Version="106.13.0" />
+    <PackageReference Include="Sentry" Version="3.11.1" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.11.1" />
+    <PackageReference Include="Sentry.Extensions.Logging" Version="3.11.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

@@ -13,7 +13,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.Controllers
 
         public StatusController(AzureMediaServicesClient client, ConfigurationModel config)
         {
-            StatusService = new StatusService(client, config);
+            StatusService = new(client, config);
         }
 
         public async Task<StatusOutputModel> GetStatusAsync(InputRequestModel input)

@@ -22,7 +22,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.Controllers
         {
             Client = client;
             Config = config;
-            StatusService = new StatusService(client, config);
+            StatusService = new(client, config);
         }
 
         public async Task<StatusChangeOutputModel> StartServicesAsync(InputRequestModel input)

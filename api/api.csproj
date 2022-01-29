@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <TargetFramework>net6.0</TargetFramework>
+    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
     <RootNamespace>LiteralLifeChurch.LiveStreamingApi</RootNamespace>
     <PackageId>live-streaming-api</PackageId>
@@ -10,8 +10,8 @@
     <Company>Literal Life Church</Company>
     <Product>Live Streaming API</Product>
     <Description>A minimal API wrapper running on Azure Functions to enable, disable, and read the status of one or more live streaming sessions with Azure Media Services</Description>
-    <Copyright>Copyright © 2021</Copyright>
-    <PackageProjectUrl>https://gitlab.com/literal-life-church/live-streaming-api</PackageProjectUrl>
+    <Copyright>Copyright © 2022</Copyright>
+    <PackageProjectUrl>https://github.com/literal-life-church/live-streaming-api</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>API; API Wrapper; Audio; Azure; Azure Functions; Azure Media Services; Live Streaming; Streaming; Video</PackageTags>
     <AssemblyVersion>1.0.0</AssemblyVersion>
@@ -30,10 +30,10 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
     <PackageReference Include="Microsoft.Azure.Management.Media" Version="5.0.0" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.4.1" />
-    <PackageReference Include="RestSharp" Version="106.13.0" />
-    <PackageReference Include="Sentry" Version="3.11.1" />
-    <PackageReference Include="Sentry.AspNetCore" Version="3.11.1" />
-    <PackageReference Include="Sentry.Extensions.Logging" Version="3.11.1" />
+    <PackageReference Include="RestSharp" Version="107.1.1" />
+    <PackageReference Include="Sentry" Version="3.13.0" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.13.0" />
+    <PackageReference Include="Sentry.Extensions.Logging" Version="3.13.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

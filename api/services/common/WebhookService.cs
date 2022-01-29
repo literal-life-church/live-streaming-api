@@ -21,10 +21,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
                 return;
             }
 
-            RestClient client = new RestClient();
+            RestClient client = new();
             RestRequest request = CreateRequest(uri, action, status);
 
-            IRestResponse response = await client.ExecuteAsync(request);
+            RestResponse response = await client.ExecuteAsync(request);
             bool isSuccessful = Is2xxResponse(response.StatusCode);
 
             if (!isSuccessful)
@@ -45,7 +45,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
         private static Uri AddActionAndStatusToUri(Uri uri, WebhookOutputModel model)
         {
             NameValueCollection queryParams = HttpUtility.ParseQueryString(uri.Query);
-            UriBuilder uriBuilder = new UriBuilder(uri);
+            UriBuilder uriBuilder = new(uri);
 
             queryParams["action"] = model.Action.ToString().ToLower();
             queryParams["status"] = model.Status.ToString().ToLower();
@@ -56,14 +56,14 @@ namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
 
         public static RestRequest CreateRequest(Uri uri, ActionEnum action, ResourceStatusEnum status)
         {
-            WebhookOutputModel model = new WebhookOutputModel
+            WebhookOutputModel model = new()
             {
                 Action = action,
                 Status = status
             };
 
             uri = AddActionAndStatusToUri(uri, model);
-            RestRequest request = new RestRequest(uri, Method.POST);
+            RestRequest request = new(uri, Method.Post);
             string payload = JsonConvert.SerializeObject(model);
 
             request.AddParameter("application/json", payload, ParameterType.RequestBody);

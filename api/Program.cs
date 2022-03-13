@@ -6,11 +6,11 @@ namespace LiteralLifeChurch.LiveStreamingApi
     {
         public static void Main()
         {
-            var host = new HostBuilder()
+            /*var host = new HostBuilder()
                 .ConfigureFunctionsWorkerDefaults()
                 .Build();
 
-            host.Run();
+            host.Run();*/
         }
     }
 }

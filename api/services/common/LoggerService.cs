@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Sentry;
-using Sentry.Protocol;
 using System;
 
 namespace LiteralLifeChurch.LiveStreamingApi.Services.Common

@@ -1,7 +1,6 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.Exceptions;
-using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.AspNetCore.Http;
 using System.Linq;
-using System.Web;
 
 namespace LiteralLifeChurch.LiveStreamingApi.Services.Validators
 {
@@ -10,12 +9,10 @@ namespace LiteralLifeChurch.LiveStreamingApi.Services.Validators
         private static readonly string EndpointQuery = "endpoint";
         private static readonly string EventsQuery = "events";
 
-        public static void Validate(HttpRequestData request)
+        public static void Validate(HttpRequest request)
         {
-            bool hasEndpoint = !string.IsNullOrEmpty(HttpUtility.ParseQueryString(request.Url.Query).Get(EndpointQuery)?.Trim());
-            bool hasEvents = !string.IsNullOrEmpty(HttpUtility.ParseQueryString(request.Url.Query).Get(EventsQuery)?.Trim()) && HttpUtility
-                .ParseQueryString(request.Url.Query)
-                .Get(EventsQuery)
+            bool hasEndpoint = request.Query.ContainsKey(EndpointQuery) && !string.IsNullOrEmpty(request.Query[EndpointQuery].ToString().Trim());
+            bool hasEvents = request.Query.ContainsKey(EventsQuery) && !string.IsNullOrEmpty(request.Query[EventsQuery].ToString().Trim()) && request.Query[EventsQuery]
                 .ToString()
                 .Split(',')
                 .Select(eventName => eventName.Trim())

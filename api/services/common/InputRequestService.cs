@@ -1,11 +1,10 @@
 ﻿using LiteralLifeChurch.LiveStreamingApi.Models.Bootstrapping;
 using LiteralLifeChurch.LiveStreamingApi.Models.Input;
 using LiteralLifeChurch.LiveStreamingApi.Services.Validators;
-using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Management.Media;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
 {
@@ -20,7 +19,7 @@ namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
             ServiceValidator = new ServiceValidator(client, config);
         }
 
-        public async Task<InputRequestModel> GetInputRequestModelAsync(HttpRequestData request)
+        public async Task<InputRequestModel> GetInputRequestModelAsync(HttpRequest request)
         {
             LoggerService.Info("Beginning validation", LoggerService.Validation);
             InputValidator.Validate(request);
@@ -29,18 +28,14 @@ namespace LiteralLifeChurch.LiveStreamingApi.Services.Common
 
             InputRequestModel model = new InputRequestModel
             {
-                LiveEvents = HttpUtility
-                    .ParseQueryString(request.Url.Query)
-                    .Get(EventsQuery)
+                LiveEvents = request.Query[EventsQuery]
                     .ToString()
                     .Split(',')
                     .Select(eventName => eventName.Trim())
                     .Where(eventName => !string.IsNullOrEmpty(eventName))
                     .ToList(),
 
-                StreamingEndpoint = HttpUtility
-                    .ParseQueryString(request.Url.Query)
-                    .Get(EndpointQuery)
+                StreamingEndpoint = request.Query[EndpointQuery]
                     .ToString()
                     .Trim()
             };

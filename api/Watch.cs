@@ -1,39 +1,34 @@
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
+using LiteralLifeChurch.LiveStreamingApi.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace LiteralLifeChurch.LiveStreamingApi
 {
     public class Watch
     {
-        private readonly TelemetryClient TelemetryClient;
+        private readonly IWatchViewModel WatchViewModel;
 
-        public Watch(TelemetryConfiguration telemetryConfiguration)
+        public Watch(IWatchViewModel watchViewModel)
         {
-            TelemetryClient = new TelemetryClient(telemetryConfiguration);
+            WatchViewModel = watchViewModel;
         }
 
         [FunctionName("WatchDefault")]
-        public IActionResult RunWatchDefault(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "watch")] HttpRequest req,
-            ILogger log)
+        public async Task<IActionResult> RunWatchDefault(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "watch")] HttpRequest req)
         {
-            TelemetryClient.TrackEvent("WatchDefault");
-            return new OkObjectResult("Watch Default");
+            return await WatchViewModel.WatchDefault();
         }
 
         [FunctionName("WatchSpecifiedEvent")]
         public IActionResult RunWatchSpecifiedEvent(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "watch/{endpointName:alpha}/{eventName:alpha}")] HttpRequest req,
             string endpointName,
-            string eventName,
-            ILogger log)
+            string eventName)
         {
-            TelemetryClient.TrackEvent("WatchSpecifiedEvent");
             return new OkObjectResult($"Watch Specified Event: {endpointName}, {eventName}");
         }
 
@@ -42,10 +37,8 @@ namespace LiteralLifeChurch.LiveStreamingApi
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "watch/{endpointName:alpha}/{eventName:alpha}/{streamType:alpha}")] HttpRequest req,
             string endpointName,
             string eventName,
-            string streamType,
-            ILogger log)
+            string streamType)
         {
-            TelemetryClient.TrackEvent("WatchSpecifiedEventAndStreamType");
             return new OkObjectResult($"Watch Specified Event and Stream Type: {endpointName}, {eventName}, {streamType}");
         }
     }

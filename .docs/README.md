@@ -1,1 +1,0 @@
-Icon made by [Vitaly Gorbachev](https://www.flaticon.com/authors/vitaly-gorbachev) from [www.flaticon.com](https://www.flaticon.com/): [https://www.flaticon.com/free-icon/api_929853](https://www.flaticon.com/free-icon/api_929853)
